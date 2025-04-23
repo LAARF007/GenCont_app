@@ -1,22 +1,56 @@
 package com.example.gencont_app.register
 
+import android.content.Intent
 import android.os.Bundle
-import android.text.Html
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.gencont_app.R
+import com.example.gencont_app.login.LoginActivity
 
 class RegisterActivity : AppCompatActivity() {
+
+    private lateinit var nomEditText: EditText
+    private lateinit var prenomEditText: EditText
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var signUpButton: Button
+    private lateinit var signInText: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_register)
+        setContentView(R.layout.activity_register) // Make sure the XML file is named correctly
 
-   /*     val tvSignIn = findViewById<TextView>(R.id.tvSignIn)
-        val text = "<b><font color='#000000'>Already A Member? </font></b><b><font color='#000000'>Sign in</font></b>"
-        tvSignIn.text = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY)*/
+        // Initialize views
+        nomEditText = findViewById(R.id.idNom)
+        prenomEditText = findViewById(R.id.idPrenom)
+        emailEditText = findViewById(R.id.idEmail)
+        passwordEditText = findViewById(R.id.idPassword)
+        signUpButton = findViewById(R.id.btnSignUp)
+        signInText = findViewById(R.id.tvSignIn)
+
+        signUpButton.setOnClickListener {
+            val nom = nomEditText.text.toString().trim()
+            val prenom = prenomEditText.text.toString().trim()
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString()
+
+            if (nom.isEmpty() || prenom.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            } else {
+                // You can add Firebase or SQLite logic here
+                Toast.makeText(this, "Account created for $prenom $nom", Toast.LENGTH_SHORT).show()
+
+                // Redirect to Login screen (optional)
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+
+        signInText.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }
