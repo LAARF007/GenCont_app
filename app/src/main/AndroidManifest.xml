@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GenCont_app"
         tools:targetApi="31">
+        <activity android:name=".formulaire.FormulaireActivity">
+
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">

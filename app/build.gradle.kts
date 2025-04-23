@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+
 android {
     namespace = "com.example.gencont_app"
     compileSdk = 35
@@ -45,4 +46,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.flexbox)
+    implementation(libs.androidx.appcompat) // Si ce n'est pas déjà fait
+    implementation(libs.androidx.core.ktx.v1160)
+
 }
