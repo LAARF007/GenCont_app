@@ -1,12 +1,13 @@
 package com.example.gencont_app
 
+import com.example.gencont_app.formulaire.FormulaireActivity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.gencont_app.formulaire.FormulaireActivity
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,11 +20,11 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // start **********Mohammed Ezzaim***********
+
         val intent = Intent(this, FormulaireActivity::class.java)
         startActivity(intent)
 
-        // end **********Mohammed Ezzaim***********
+
 
     }
 }

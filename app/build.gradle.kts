@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
     implementation(libs.flexbox)
     implementation(libs.androidx.appcompat) // Si ce n'est pas déjà fait
