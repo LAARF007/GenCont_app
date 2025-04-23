@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF9800"
+    android:background="@drawable/background"
     tools:context=".login.LoginActivity">
 
     <ImageView
@@ -59,6 +59,7 @@
                 android:drawablePadding="12dp"
                 android:hint="Username / Email"
                 android:padding="12dp"
+                android:layout_marginTop="10dp"
                 android:textColorHint="#A0A0A0"
                 android:textSize="16sp" />
 
@@ -66,7 +67,7 @@
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/edit_text_background"
                 android:drawableStart="@drawable/ic_password"
                 android:drawablePadding="12dp"
@@ -90,7 +91,7 @@
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="60dp"
                 android:background="@drawable/login_button_background"
                 android:text="Login"
                 android:textAllCaps="false"
