@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="orange">#FF7F50</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="tag_color">#33fffc</color>
+    <color name="soft_orange">#FFBC85</color>
+    <color name="dark_orange">#D2691E</color>
+    <color name="upload_text_color">#333333</color>
+    <color name="upload_description_color">#777777</color>
 </resources>
