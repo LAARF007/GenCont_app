@@ -2,19 +2,18 @@ package com.example.gencont_app
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import android.widget.Button
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.gencont_app.configDB.data.Utilisateur
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.formulaire.FormulaireActivity
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import com.example.gencont_app.login.LoginActivity
 import com.example.gencont_app.register.RegisterActivity
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
