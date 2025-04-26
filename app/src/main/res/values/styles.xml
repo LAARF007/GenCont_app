@@ -11,6 +11,18 @@
         <item name="android:paddingRight">0.5dp</item> <!-- Padding droite -->
     </style>
 
+
+
+    <style name="Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <style name="Button.Secondary" parent="Button.Primary">
+        <item name="strokeColor">@color/blue_500</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
     <style name="TagButtonBlue" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:backgroundTint">@color/soft_orange</item>
         <item name="android:textColor">@color/white</item>
@@ -21,6 +33,8 @@
         <item name="android:paddingLeft">12dp</item> <!-- Padding gauche -->
         <item name="android:paddingRight">12dp</item> <!-- Padding droite -->
     </style>
+
+
 
     <style name="PrimaryButton" parent="Widget.MaterialComponents.Button">
         <item name="android:layout_marginTop">16dp</item>
