@@ -2,8 +2,17 @@ package com.example.gencont_app
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.enableEdgeToEdge
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.example.gencont_app.configDB.data.Utilisateur
+import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.formulaire.FormulaireActivity
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import com.example.gencont_app.login.LoginActivity
 import com.example.gencont_app.register.RegisterActivity
 
@@ -11,6 +20,28 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main) // ensure the filename is activity_main.xml
+
+        // start **********Mohammed Ezzaim***********
+        val db = AppDatabase.getInstance(applicationContext)
+        val utilisateurDao = db.utilisateurDao()
+
+        runBlocking {
+            launch {
+                // Insert a Utilisateur
+                val newUtilisateur = Utilisateur(
+                    nom = "John",
+                    prénom = "Doe",
+                    email = "john.doe@example.com",
+                    motDePasse = "password123"
+                )
+                val utilisateurId = utilisateurDao.insert(newUtilisateur)
+                Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
+            }
+        }
+
+        val intent = Intent(this, FormulaireActivity::class.java)
+        startActivity(intent)
+        // end **********Mohammed Ezzaim***********
 
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
@@ -24,5 +55,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+
+
     }
 }
