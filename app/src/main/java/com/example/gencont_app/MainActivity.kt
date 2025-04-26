@@ -8,7 +8,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.gencont_app.aiintegration.ChatApiClient
+import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.data.Utilisateur
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.formulaire.FormulaireActivity
@@ -53,7 +53,14 @@ class MainActivity : AppCompatActivity() {
         btnLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
-            ChatApiClient.sendMessage("Explique-moi comment utiliser TabLayout + ViewPager2 en Kotlin")
+//            ChatApiClient.sendMessage("Explique-moi comment utiliser TabLayout + ViewPager2 en Kotlin")
+
+            ChatApiClient.generateCourseJson(
+                titre       = "machine learning",
+                niveau      = "débutant",
+                description = "c'est quoi le machine learning",
+                emotion     = "happy"
+            )
 
         }
 
