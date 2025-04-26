@@ -20,9 +20,15 @@ object ChatApiClient {
         .callTimeout(120, TimeUnit.SECONDS)
         .build()
 
+    /**
+     * @param onResult callback déclenché avec le JSON de cours généré
+     */
     fun generateCourseJson(
-        titre: String, niveau: String,
-        description: String, emotion: String
+        titre: String,
+        niveau: String,
+        description: String,
+        emotion: String,
+        onResult: (jsonCourse: String) -> Unit
     ) {
         val systemPrompt = """
     Tu es un assistant pédagogique expert dans la génération de cours structurés au format JSON.
@@ -130,7 +136,7 @@ object ChatApiClient {
             .post(requestBody)
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
+  /*      client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "Erreur réseau : ${e.message}", e)
             }
@@ -150,6 +156,32 @@ object ChatApiClient {
                         .getJSONObject("message")
                         .getString("content")
                     Log.d(TAG, "Cours JSON généré :\n$content")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Parsing échoué : ${e.message}", e)
+                    Log.d(TAG, "Réponse brute :\n$bodyString")
+                }
+            }
+        })*/
+        // … construction du fullJson, envoi de la requête …
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e(TAG, "Erreur réseau : ${e.message}", e)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val bodyString = response.body?.string().orEmpty()
+                if (!response.isSuccessful) {
+                    Log.e(TAG, "HTTP ${response.code} - body:\n$bodyString")
+                    return
+                }
+                try {
+                    val content = JSONObject(bodyString)
+                        .getJSONArray("choices")
+                        .getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content")
+                    // **ici**, on renvoie la chaîne JSON complète de "cours"
+                    onResult(content)
                 } catch (e: Exception) {
                     Log.e(TAG, "Parsing échoué : ${e.message}", e)
                     Log.d(TAG, "Réponse brute :\n$bodyString")
