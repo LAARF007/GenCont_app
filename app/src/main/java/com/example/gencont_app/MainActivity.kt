@@ -1,5 +1,6 @@
 package com.example.gencont_app
 
+import CoursePersister
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.data.Utilisateur
 import com.example.gencont_app.configDB.database.AppDatabase
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import com.example.gencont_app.login.LoginActivity
 import com.example.gencont_app.register.RegisterActivity
+import kotlinx.coroutines.Dispatchers
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         val utilisateurDao = db.utilisateurDao()
 
 //        this is a test
-        runBlocking {
+        /*runBlocking {
             launch {
                 // Insert a Utilisateur
                 val newUtilisateur = Utilisateur(
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                 val utilisateurId = utilisateurDao.insert(newUtilisateur)
                 Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
             }
-        }
+        }*/
 
 // Par exemple dans onCreate ou après un clic de bouton :
 
@@ -56,11 +59,17 @@ class MainActivity : AppCompatActivity() {
 //            ChatApiClient.sendMessage("Explique-moi comment utiliser TabLayout + ViewPager2 en Kotlin")
 
             ChatApiClient.generateCourseJson(
-                titre       = "machine learning",
-                niveau      = "débutant",
-                description = "c'est quoi le machine learning",
+                titre       = "traitement d'image",
+                niveau      = "intermidiaire",
+                description = "comment en traite l image ",
                 emotion     = "happy"
-            )
+            ) { jsonCourse ->
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+                    repo.saveCourse(jsonCourse, 2)
+                }
+            }
+
 
         }
 
