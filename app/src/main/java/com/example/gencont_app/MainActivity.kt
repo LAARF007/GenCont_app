@@ -21,10 +21,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main) // ensure the filename is activity_main.xml
 
-        // start **********Mohammed Ezzaim***********
         val db = AppDatabase.getInstance(applicationContext)
         val utilisateurDao = db.utilisateurDao()
 
+//        this is a test
         runBlocking {
             launch {
                 // Insert a Utilisateur
@@ -39,9 +39,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val intent = Intent(this, FormulaireActivity::class.java)
-        startActivity(intent)
-        // end **********Mohammed Ezzaim***********
+
+
+        // to go directly to form (incomment this)
+        /*  val intent = Intent(this, FormulaireActivity::class.java)
+       startActivity(intent)*/
 
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
