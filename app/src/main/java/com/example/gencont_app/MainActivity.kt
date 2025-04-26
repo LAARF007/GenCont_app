@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.gencont_app.aiintegration.ChatApiClient
 import com.example.gencont_app.configDB.data.Utilisateur
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.formulaire.FormulaireActivity
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+// Par exemple dans onCreate ou après un clic de bouton :
 
 
         // to go directly to form (incomment this)
@@ -50,6 +52,8 @@ class MainActivity : AppCompatActivity() {
         btnLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
+            ChatApiClient.sendMessage("Explique-moi comment utiliser TabLayout + ViewPager2 en Kotlin")
+
         }
 
         btnRegister.setOnClickListener {
