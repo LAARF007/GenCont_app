@@ -1,5 +1,6 @@
 package com.example.gencont_app.formulaire
 
+import CoursePersister
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -10,8 +11,13 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.api.ChatApiClient
+import com.example.gencont_app.configDB.database.AppDatabase
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -42,6 +48,7 @@ class FormulaireActivity : AppCompatActivity() {
 
     private var selectedImageUri: Uri? = null
     private val IMAGE_PICK_CODE = 1000
+    lateinit var etat_visage: String
 
     // Initialize UI components
     private fun initializeUI() {
@@ -63,6 +70,10 @@ class FormulaireActivity : AppCompatActivity() {
         previousButton = findViewById(R.id.buttonPrevious)
     }
 
+    //nextButton
+
+
+
     // Set up button click listeners
     private fun setupClickListeners() {
         nextButton.setOnClickListener {
@@ -82,9 +93,13 @@ class FormulaireActivity : AppCompatActivity() {
         generateButton.setOnClickListener {
             if (selectedImageUri != null) {
                 generateContent()
+
             } else {
                 Toast.makeText(this, "Please select an image first.", Toast.LENGTH_SHORT).show()
             }
+            //courseTitleEditText proficiencyLevelSpinner languageSpinner descriptionEditText
+
+
         }
     }
 
@@ -174,6 +189,26 @@ class FormulaireActivity : AppCompatActivity() {
                             Toast.makeText(this, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
                             Log.d("FormulaireActivity", "No dominant emotion found.")
                         }
+                        etat_visage = topEmotion;
+
+
+                        Log.d("etat_visage", "l etat est : $etat_visage")
+
+                        ChatApiClient.generateCourseJson(
+                            titre       = courseTitleEditText.text.toString(),
+                            niveau      = proficiencyLevelSpinner.selectedItem.toString(),
+                            language    = languageSpinner.selectedItem.toString(),
+                            description = descriptionEditText.text.toString(),
+                            emotion     = etat_visage
+                        ) { jsonCourse ->
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+                                repo.saveCourse(jsonCourse, 2)
+                            }
+                        }
+
+
+
                     } catch (e: Exception) {
                         Toast.makeText(this, "Failed to parse response.", Toast.LENGTH_SHORT).show()
                         Log.e("FormulaireActivity", "JSON parsing error: ${e.message}")

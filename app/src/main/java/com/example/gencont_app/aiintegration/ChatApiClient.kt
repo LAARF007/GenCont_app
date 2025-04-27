@@ -26,6 +26,7 @@ object ChatApiClient {
     fun generateCourseJson(
         titre: String,
         niveau: String,
+        language: String,
         description: String,
         emotion: String,
         onResult: (jsonCourse: String) -> Unit
@@ -35,6 +36,7 @@ object ChatApiClient {
     Tu reçois en user prompt :
       • un titre de cours
       • un niveau parmi {débutant, intermédiaire, avancé}
+      • la language de contenu 
       • une courte description
       • une émotion parmi {happy, neutral, sad, excited, anxious}
 
@@ -94,6 +96,7 @@ object ChatApiClient {
         {
           "titre": "${titre.replace("\"","\\\"")}",
           "niveau": "${niveau.replace("\"","\\\"")}",
+          "language": "${language.replace("\"","\\\"")}",
           "description": "${description.replace("\"","\\\"")}",
           "emotion": "${emotion.replace("\"","\\\"")}"
         }

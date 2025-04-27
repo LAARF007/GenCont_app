@@ -41,7 +41,7 @@ class CoursePersister(private val db: AppDatabase) {
 
         // 1) Sauvegarde du Prompt
         val prompt = Prompt(
-            Tags       = listOf(niveau ?: ""),
+            Tags       = null,
             coursName  = titre,
             niveau     = niveau,
             langue     = null,
