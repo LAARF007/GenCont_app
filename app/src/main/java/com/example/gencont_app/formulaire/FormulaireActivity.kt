@@ -10,8 +10,15 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.configDB.dao.PromptDao
+import com.example.gencont_app.configDB.data.Prompt
+import com.example.gencont_app.configDB.database.AppDatabase
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -168,8 +175,47 @@ class FormulaireActivity : AppCompatActivity() {
                         }
 
                         if (topEmotion.isNotEmpty()) {
+                            val courseName = courseTitleEditText.text.toString()
+                            val niveau = proficiencyLevelSpinner.selectedItem.toString()
+                            val langue = languageSpinner.selectedItem.toString()
+                            val description = descriptionEditText.text.toString()
+
+                            var prompt: Prompt = Prompt(
+                                Tags = listOf(topEmotion), // Using the detected emotion as a tag
+                                coursName = courseName, // You can customize this
+                                niveau = niveau, // You can customize this
+                                langue = langue, // You can customize this based on app language
+                                description = description, // Using emotion in description
+                                status_user = topEmotion, // Default status
+                                utilisateurId = 1 // You need to define this variable with the current user ID
+                            )
+
                             Toast.makeText(this, "Detected emotion: $topEmotion", Toast.LENGTH_LONG).show()
                             Log.d("FormulaireActivity", "Detected emotion: $topEmotion")
+
+                            // Launch a coroutine to insert the prompt into the database
+                            lifecycleScope.launch(Dispatchers.IO) {
+                                try {
+                                    val promptDao = AppDatabase.getInstance(applicationContext).promptDao() // Replace YourDatabase with your actual database class
+                                    val insertedId = promptDao.insert(prompt)
+
+                                    // Log the result on the main thread
+                                    withContext(Dispatchers.Main) {
+                                        if (insertedId > 0) {
+                                            Log.d("FormulaireActivity", "Prompt saved with ID: $insertedId")
+                                            Toast.makeText(this@FormulaireActivity, "Emotion saved to database", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Log.e("FormulaireActivity", "Failed to save prompt")
+                                            Toast.makeText(this@FormulaireActivity, "Failed to save emotion", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("FormulaireActivity", "Error saving prompt: ${e.message}", e)
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(this@FormulaireActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
                         } else {
                             Toast.makeText(this, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
                             Log.d("FormulaireActivity", "No dominant emotion found.")
