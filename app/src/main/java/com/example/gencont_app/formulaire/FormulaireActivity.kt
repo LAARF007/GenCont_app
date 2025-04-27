@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +14,7 @@ import com.example.gencont_app.R
 import com.google.android.material.textfield.TextInputLayout
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -78,7 +80,6 @@ class FormulaireActivity : AppCompatActivity() {
         }
 
         generateButton.setOnClickListener {
-            // Handle image generation logic here
             if (selectedImageUri != null) {
                 generateContent()
             } else {
@@ -95,7 +96,7 @@ class FormulaireActivity : AppCompatActivity() {
             courseTitleInputLayout.error = "Please enter a course title"
             isValid = false
         } else {
-            courseTitleInputLayout.error = null  // Clear error
+            courseTitleInputLayout.error = null
         }
 
         if (descriptionEditText.text.isNullOrBlank()) {
@@ -129,48 +130,53 @@ class FormulaireActivity : AppCompatActivity() {
     private fun generateContent() {
         if (selectedImageUri == null) {
             Toast.makeText(this, "No image selected.", Toast.LENGTH_SHORT).show()
-            android.util.Log.d("FormulaireActivity", "No image selected.")
+            Log.d("FormulaireActivity", "No image selected.")
             return
         }
 
-        android.util.Log.d("FormulaireActivity", "Image URI: $selectedImageUri")
+        Log.d("FormulaireActivity", "Image URI: $selectedImageUri")
 
         val imageFile = uriToFile(selectedImageUri!!)
-        android.util.Log.d("FormulaireActivity", "Converted URI to file: ${imageFile.absolutePath}")
+        Log.d("FormulaireActivity", "Converted URI to file: ${imageFile.absolutePath}")
 
-        detectEmotion(imageFile) { result ->
+        val base64Image = encodeImageToBase64(imageFile)
+
+        detectEmotion(base64Image) { result ->
             runOnUiThread {
-                android.util.Log.d("FormulaireActivity", "Emotion detection response: $result")
+                Log.d("FormulaireActivity", "Emotion detection response: $result")
 
                 if (result == null) {
                     Toast.makeText(this, "Error detecting emotion.", Toast.LENGTH_SHORT).show()
-                    android.util.Log.d("FormulaireActivity", "API returned null response.")
+                    Log.d("FormulaireActivity", "API returned null response.")
                 } else {
                     try {
-                        val jsonObject = JSONObject(result)
-                        val status = jsonObject.getString("status")
-                        android.util.Log.d("FormulaireActivity", "Status: $status")
+                        val jsonArray = JSONArray(result)
 
-                        if (jsonObject.has("faces")) {
-                            val facesArray = jsonObject.getJSONArray("faces")
-                            android.util.Log.d("FormulaireActivity", "Found ${facesArray.length()} face(s)")
+                        // Find the emotion with the highest score
+                        var topEmotion = ""
+                        var topScore = 0.0
 
-                            if (facesArray.length() > 0) {
-                                val firstFace = facesArray.getJSONObject(0)
-                                val emotion = firstFace.getString("dominant_emotion")
-                                Toast.makeText(this, "Detected emotion: $emotion", Toast.LENGTH_LONG).show()
-                                android.util.Log.d("FormulaireActivity", "Detected emotion: $emotion")
-                            } else {
-                                Toast.makeText(this, "No face/emotion detected.", Toast.LENGTH_SHORT).show()
-                                android.util.Log.d("FormulaireActivity", "No faces found in response.")
+                        for (i in 0 until jsonArray.length()) {
+                            val item = jsonArray.getJSONObject(i)
+                            val label = item.getString("label")
+                            val score = item.getDouble("score")
+
+                            if (score > topScore) {
+                                topScore = score
+                                topEmotion = label
                             }
+                        }
+
+                        if (topEmotion.isNotEmpty()) {
+                            Toast.makeText(this, "Detected emotion: $topEmotion", Toast.LENGTH_LONG).show()
+                            Log.d("FormulaireActivity", "Detected emotion: $topEmotion")
                         } else {
-                            Toast.makeText(this, "No emotion data returned.", Toast.LENGTH_SHORT).show()
-                            android.util.Log.d("FormulaireActivity", "No 'faces' key in response.")
+                            Toast.makeText(this, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
+                            Log.d("FormulaireActivity", "No dominant emotion found.")
                         }
                     } catch (e: Exception) {
                         Toast.makeText(this, "Failed to parse response.", Toast.LENGTH_SHORT).show()
-                        android.util.Log.e("FormulaireActivity", "JSON parsing error: ${e.message}")
+                        Log.e("FormulaireActivity", "JSON parsing error: ${e.message}")
                     }
                 }
             }
@@ -199,7 +205,7 @@ class FormulaireActivity : AppCompatActivity() {
                 if (nameIndex >= 0 && cursor.moveToFirst()) {
                     result = cursor.getString(nameIndex)
                 } else {
-                    android.util.Log.w("FormulaireActivity", "DISPLAY_NAME not found in cursor columns.")
+                    Log.w("FormulaireActivity", "DISPLAY_NAME not found in cursor columns.")
                 }
             }
         } else {
@@ -208,26 +214,28 @@ class FormulaireActivity : AppCompatActivity() {
             }
         }
 
-        android.util.Log.d("FormulaireActivity", "Resolved file name: $result")
+        Log.d("FormulaireActivity", "Resolved file name: $result")
         return result
     }
 
+    // Convert image file to Base64 string
+    private fun encodeImageToBase64(imageFile: File): String {
+        val byteArray = imageFile.readBytes()
+        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    }
 
-    // Detect emotion from image file via API
-    private fun detectEmotion(imageFile: File, onResult: (String?) -> Unit) {
+    // Detect emotion from Base64 image string via Hugging Face API
+    private fun detectEmotion(base64Image: String, onResult: (String?) -> Unit) {
         val client = OkHttpClient()
 
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart(
-                "photo", imageFile.name,
-                imageFile.asRequestBody("image/*".toMediaTypeOrNull())
-            )
-            .build()
+        val jsonPayload = JSONObject()
+        jsonPayload.put("inputs", base64Image)
+
+        val requestBody = jsonPayload.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("https://api.luxand.cloud/photo/emotions")
-            .addHeader("token", "850045b7add54d8690f84d5070987bd7") // Replace with actual API key
+            .url("https://api-inference.huggingface.co/models/motheecreator/vit-Facial-Expression-Recognition")
+            .addHeader("Authorization", "Bearer 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") // Replace with your actual token
             .post(requestBody)
             .build()
 
