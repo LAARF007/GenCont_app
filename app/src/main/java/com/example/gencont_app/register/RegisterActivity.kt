@@ -1,5 +1,6 @@
 package com.example.gencont_app.register
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import android.util.Patterns
@@ -11,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.configDB.data.Utilisateur
 import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.login.LoginActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -98,7 +100,8 @@ class RegisterActivity : AppCompatActivity() {
 
                 // Notifier l'utilisateur et terminer l'activité
                 showToast("Inscription réussie")
-                finish() // Retour à l'activité précédente
+                val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
+                startActivity(intent)
 
             } catch (e: Exception) {
                 showToast("Erreur lors de l'inscription: ${e.message}")
