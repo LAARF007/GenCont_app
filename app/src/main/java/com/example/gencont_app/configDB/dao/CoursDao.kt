@@ -10,7 +10,7 @@ interface CoursDao {
     suspend fun insert(cours: Cours): Long
 
     @Query("SELECT * FROM Cours WHERE id = :id")
-    suspend fun getCoursById(id: Long): Cours?
+    suspend fun getCoursById(id: kotlin.Long): Cours?
 
     @Update
     suspend fun update(cours: Cours)
@@ -23,4 +23,6 @@ interface CoursDao {
 
     @Query("SELECT * FROM Cours WHERE titre LIKE :titre")
     suspend fun getCoursByTitre(titre: String): List<Cours>
+
+
 }
