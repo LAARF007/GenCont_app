@@ -225,7 +225,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"
-            android:background="@drawable/formulaire_upload_background">
+            android:background="@drawable/background_image"
+            >
 
             <TextView
                 android:id="@+id/textViewImageCapture"
@@ -255,9 +256,11 @@
                 android:layout_height="48dp"
                 android:layout_margin="16dp"
                 android:src="@drawable/switch_camera"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:backgroundTint="#80000000"
+                android:background="@android:color/darker_gray"
                 app:layout_constraintTop_toTopOf="@id/textureView"
                 app:layout_constraintEnd_toEndOf="@id/textureView"/>
+
 
             <Button
                 android:id="@+id/captureButton"

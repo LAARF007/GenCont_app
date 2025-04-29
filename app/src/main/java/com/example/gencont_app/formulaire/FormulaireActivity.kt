@@ -701,13 +701,7 @@ class FormulaireActivity : AppCompatActivity() {
             else -> 0
         }
 
-        return if (isFrontFacing) {
-            // Correction miroir pour la frontale
-            (sensorOrientation + deviceRotationDegrees).let { (360 - it % 360) % 360 }
-        } else {
-            // Caméra arrière : pas de miroir
-            (sensorOrientation - deviceRotationDegrees + 360) % 360
-        }
+        return (sensorOrientation - deviceRotationDegrees + 360) % 360
     }
 
 
@@ -733,12 +727,14 @@ class FormulaireActivity : AppCompatActivity() {
         }
     }
 
-    fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int, isFrontFacing: Boolean): Bitmap {
+    private fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int, isFrontFacing: Boolean): Bitmap {
         val matrix = Matrix()
         matrix.postRotate(rotationDegrees.toFloat())
+
         if (isFrontFacing) {
-            matrix.postScale(-1f, 1f) // effet miroir
+            matrix.postScale(-1f, 1f)
         }
+
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
