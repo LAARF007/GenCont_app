@@ -1,7 +1,12 @@
 package com.example.gencont_app.formulaire
 
+import CoursePersister
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -12,6 +17,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.dao.PromptDao
 import com.example.gencont_app.configDB.data.Prompt
 import com.example.gencont_app.configDB.database.AppDatabase
@@ -24,9 +30,11 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class FormulaireActivity : AppCompatActivity() {
 
@@ -49,6 +57,8 @@ class FormulaireActivity : AppCompatActivity() {
 
     private var selectedImageUri: Uri? = null
     private val IMAGE_PICK_CODE = 1000
+    lateinit var etat_visage: String
+
 
     // Initialize UI components
     private fun initializeUI() {
@@ -141,89 +151,98 @@ class FormulaireActivity : AppCompatActivity() {
             return
         }
 
-        Log.d("FormulaireActivity", "Image URI: $selectedImageUri")
+        // Show a progress indicator
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Processing image...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
 
-        val imageFile = uriToFile(selectedImageUri!!)
-        Log.d("FormulaireActivity", "Converted URI to file: ${imageFile.absolutePath}")
+        // Move heavy operations to background thread
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                Log.d("FormulaireActivity", "Image URI: $selectedImageUri")
 
-        val base64Image = encodeImageToBase64(imageFile)
+                val imageFile = uriToFile(selectedImageUri!!)
+                Log.d("FormulaireActivity", "Converted URI to file: ${imageFile.absolutePath}")
 
-        detectEmotion(base64Image) { result ->
-            runOnUiThread {
-                Log.d("FormulaireActivity", "Emotion detection response: $result")
+                val base64Image = encodeImageToBase64(imageFile)
+                if (base64Image.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        progressDialog.dismiss()
+                        Toast.makeText(this@FormulaireActivity, "Failed to encode image.", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
 
-                if (result == null) {
-                    Toast.makeText(this, "Error detecting emotion.", Toast.LENGTH_SHORT).show()
-                    Log.d("FormulaireActivity", "API returned null response.")
-                } else {
-                    try {
-                        val jsonArray = JSONArray(result)
+                // Now call the API
+                detectEmotion(base64Image) { result ->
+                    // This is already running in a background thread from OkHttp
+                    // We handle the UI updates on the main thread
+                    runOnUiThread {
+                        progressDialog.dismiss()
+                        Log.d("FormulaireActivity", "Emotion detection response: $result")
 
-                        // Find the emotion with the highest score
-                        var topEmotion = ""
-                        var topScore = 0.0
+                        if (result == null) {
+                            Toast.makeText(this@FormulaireActivity, "Error detecting emotion. Please check your internet connection and try again.", Toast.LENGTH_SHORT).show()
+                            Log.d("FormulaireActivity", "API returned null response.")
+                        } else {
+                            try {
+                                val jsonArray = JSONArray(result)
 
-                        for (i in 0 until jsonArray.length()) {
-                            val item = jsonArray.getJSONObject(i)
-                            val label = item.getString("label")
-                            val score = item.getDouble("score")
+                                // Find the emotion with the highest score
+                                var topEmotion = ""
+                                var topScore = 0.0
 
-                            if (score > topScore) {
-                                topScore = score
-                                topEmotion = label
-                            }
-                        }
+                                for (i in 0 until jsonArray.length()) {
+                                    val item = jsonArray.getJSONObject(i)
+                                    val label = item.getString("label")
+                                    val score = item.getDouble("score")
 
-                        if (topEmotion.isNotEmpty()) {
-                            val courseName = courseTitleEditText.text.toString()
-                            val niveau = proficiencyLevelSpinner.selectedItem.toString()
-                            val langue = languageSpinner.selectedItem.toString()
-                            val description = descriptionEditText.text.toString()
-
-                            var prompt: Prompt = Prompt(
-                                Tags = listOf(topEmotion), // Using the detected emotion as a tag
-                                coursName = courseName, // You can customize this
-                                niveau = niveau, // You can customize this
-                                langue = langue, // You can customize this based on app language
-                                description = description, // Using emotion in description
-                                status_user = topEmotion, // Default status
-                                utilisateurId = 1 // You need to define this variable with the current user ID
-                            )
-
-                            Toast.makeText(this, "Detected emotion: $topEmotion", Toast.LENGTH_LONG).show()
-                            Log.d("FormulaireActivity", "Detected emotion: $topEmotion")
-
-                            // Launch a coroutine to insert the prompt into the database
-                            lifecycleScope.launch(Dispatchers.IO) {
-                                try {
-                                    val promptDao = AppDatabase.getInstance(applicationContext).promptDao() // Replace YourDatabase with your actual database class
-                                    val insertedId = promptDao.insert(prompt)
-
-                                    // Log the result on the main thread
-                                    withContext(Dispatchers.Main) {
-                                        if (insertedId > 0) {
-                                            Log.d("FormulaireActivity", "Prompt saved with ID: $insertedId")
-                                            Toast.makeText(this@FormulaireActivity, "Emotion saved to database", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            Log.e("FormulaireActivity", "Failed to save prompt")
-                                            Toast.makeText(this@FormulaireActivity, "Failed to save emotion", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("FormulaireActivity", "Error saving prompt: ${e.message}", e)
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(this@FormulaireActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    if (score > topScore) {
+                                        topScore = score
+                                        topEmotion = label
                                     }
                                 }
+
+                                if (topEmotion.isNotEmpty()) {
+                                    Toast.makeText(this@FormulaireActivity, "Detected emotion: $topEmotion", Toast.LENGTH_LONG).show()
+                                    Log.d("FormulaireActivity", "Detected emotion: $topEmotion")
+
+                                } else {
+                                    Toast.makeText(this@FormulaireActivity, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
+                                    Log.d("FormulaireActivity", "No dominant emotion found.")
+                                }
+
+                                etat_visage = topEmotion;
+
+
+                                Log.d("etat_visage", "l etat est : $etat_visage")
+
+                                ChatApiClient.generateCourseJson(
+                                    titre       = courseTitleEditText.text.toString(),
+                                    niveau      = proficiencyLevelSpinner.selectedItem.toString(),
+                                    language    = languageSpinner.selectedItem.toString(),
+                                    description = descriptionEditText.text.toString(),
+                                    emotion     = etat_visage
+                                ) { jsonCourse ->
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+                                        repo.saveCourse(jsonCourse, 2)
+                                    }
+                                }
+
+                            } catch (e: Exception) {
+                                Toast.makeText(this@FormulaireActivity, "Failed to parse response: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Log.e("FormulaireActivity", "JSON parsing error: ${e.message}")
                             }
-                        } else {
-                            Toast.makeText(this, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
-                            Log.d("FormulaireActivity", "No dominant emotion found.")
                         }
-                    } catch (e: Exception) {
-                        Toast.makeText(this, "Failed to parse response.", Toast.LENGTH_SHORT).show()
-                        Log.e("FormulaireActivity", "JSON parsing error: ${e.message}")
                     }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    Toast.makeText(this@FormulaireActivity, "Error processing image: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("FormulaireActivity", "Error in generateContent: ${e.message}", e)
                 }
             }
         }
@@ -265,33 +284,70 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     // Convert image file to Base64 string
-    private fun encodeImageToBase64(imageFile: File): String {
-        val byteArray = imageFile.readBytes()
-        return Base64.encodeToString(byteArray, Base64.NO_WRAP)
+    private fun encodeImageToBase64(file: File): String {
+        return try {
+            // Resize the image to reduce size
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true) // Most vision models expect 224x224
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
+            val byteArray = byteArrayOutputStream.toByteArray()
+            val base64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
+            base64
+        } catch (e: Exception) {
+            Log.e("FormulaireActivity", "Error encoding image: ${e.message}", e)
+            ""
+        }
     }
 
     // Detect emotion from Base64 image string via Hugging Face API
     private fun detectEmotion(base64Image: String, onResult: (String?) -> Unit) {
-        val client = OkHttpClient()
+        // Create a client with longer timeouts
+        val client = OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
 
+        // Format the request properly for Hugging Face - they expect a specific format
+        // The image should be provided as a base64 string with proper formatting
         val jsonPayload = JSONObject()
+        // For image models, the format is usually {"inputs": {"image": "BASE64_STRING"}}
+        // or simply {"inputs": "BASE64_STRING"} depending on the model
         jsonPayload.put("inputs", base64Image)
 
         val requestBody = jsonPayload.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
             .url("https://api-inference.huggingface.co/models/motheecreator/vit-Facial-Expression-Recognition")
-            .addHeader("Authorization", "Bearer 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") // Replace with your actual token
+            .addHeader("Authorization", "Bearer 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")
             .post(requestBody)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
+                Log.e("FormulaireActivity", "API call failed: ${e.message}", e)
                 onResult(null)
             }
 
             override fun onResponse(call: Call, response: Response) {
+                // Check if the response was successful
+                if (!response.isSuccessful) {
+                    Log.e("FormulaireActivity", "API error: ${response.code} - ${response.message}")
+                    try {
+                        // Try to get error body
+                        val errorBody = response.body?.string()
+                        Log.e("FormulaireActivity", "Error body: $errorBody")
+                    } catch (e: Exception) {
+                        Log.e("FormulaireActivity", "Failed to read error body: ${e.message}")
+                    }
+                    onResult(null)
+                    return
+                }
+
                 val result = response.body?.string()
+                Log.d("FormulaireActivity", "API response body: $result")
                 onResult(result)
             }
         })
