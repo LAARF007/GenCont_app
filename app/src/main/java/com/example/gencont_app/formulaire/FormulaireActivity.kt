@@ -218,7 +218,7 @@ class FormulaireActivity : AppCompatActivity() {
 
                                 Log.d("etat_visage", "l etat est : $etat_visage")
 
-                                ChatApiClient.generateCourseJson(
+                                /*ChatApiClient.generateCourseJson(
                                     titre       = courseTitleEditText.text.toString(),
                                     niveau      = proficiencyLevelSpinner.selectedItem.toString(),
                                     language    = languageSpinner.selectedItem.toString(),
@@ -227,9 +227,31 @@ class FormulaireActivity : AppCompatActivity() {
                                 ) { jsonCourse ->
                                     lifecycleScope.launch(Dispatchers.IO) {
                                         val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
-                                        repo.saveCourse(jsonCourse, 2)
+                                        repo.saveCourse(jsonCourse, 2 , etat_visage , languageSpinner.selectedItem.toString())
+                                    }
+                                }*/
+
+                                ChatApiClient.generateCourseJson(
+                                    titre       = courseTitleEditText.text.toString(),
+                                    niveau      = proficiencyLevelSpinner.selectedItem.toString(),
+                                    language    = languageSpinner.selectedItem.toString(),
+                                    description = descriptionEditText.text.toString(),
+                                    emotion     = etat_visage
+                                ) { jsonCourse, isSuccess ->
+                                    runOnUiThread {
+                                        if (isSuccess) {
+                                            Toast.makeText(this@FormulaireActivity, "Cours généré avec succès ", Toast.LENGTH_SHORT).show()
+                                            lifecycleScope.launch(Dispatchers.IO) {
+                                                val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+                                                repo.saveCourse(jsonCourse, 2, etat_visage, languageSpinner.selectedItem.toString())
+                                            }
+                                        } else {
+                                            Toast.makeText(this@FormulaireActivity, "Erreur lors de la génération du cours ❌", Toast.LENGTH_LONG).show()
+                                            Log.e("ChatApiClient", "Erreur reçue : $jsonCourse")
+                                        }
                                     }
                                 }
+
 
                             } catch (e: Exception) {
                                 Toast.makeText(this@FormulaireActivity, "Failed to parse response: ${e.message}", Toast.LENGTH_SHORT).show()

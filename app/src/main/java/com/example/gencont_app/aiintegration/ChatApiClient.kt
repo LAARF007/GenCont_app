@@ -29,7 +29,7 @@ object ChatApiClient {
         language: String,
         description: String,
         emotion: String,
-        onResult: (jsonCourse: String) -> Unit
+        onResult: (jsonCourse: String, isSuccess: Boolean) -> Unit
     ) {
         val systemPrompt = """
     Tu es un assistant pédagogique expert dans la génération de cours structurés au format JSON.
@@ -165,19 +165,23 @@ object ChatApiClient {
                 }
             }
         })*/
+
         // … construction du fullJson, envoi de la requête …
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "Erreur réseau : ${e.message}", e)
+                onResult("Erreur réseau : ${e.message}", false)
+
             }
 
             override fun onResponse(call: Call, response: Response) {
                 val bodyString = response.body?.string().orEmpty()
                 if (!response.isSuccessful) {
-                    Log.e(TAG, "HTTP ${response.code} - body:\n$bodyString")
+                    Log.e(TAG, "Échec HTTP ${response.code} - body:\n$bodyString")
+                    onResult("Erreur HTTP ${response.code}", false)
                     return
                 }
-                try {
+                /*try {
                     val content = JSONObject(bodyString)
                         .getJSONArray("choices")
                         .getJSONObject(0)
@@ -188,6 +192,20 @@ object ChatApiClient {
                 } catch (e: Exception) {
                     Log.e(TAG, "Parsing échoué : ${e.message}", e)
                     Log.d(TAG, "Réponse brute :\n$bodyString")
+                }*/
+                try {
+                    val content = JSONObject(bodyString)
+                        .getJSONArray("choices")
+                        .getJSONObject(0)
+                        .getJSONObject("message")
+                        .getString("content")
+
+                    Log.d(TAG, "Cours JSON généré avec succès.")
+                    onResult(content, true)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Erreur lors du parsing JSON : ${e.message}", e)
+                    Log.d(TAG, "Réponse brute :\n$bodyString")
+                    onResult("Erreur de parsing : ${e.message}", false)
                 }
             }
         })
