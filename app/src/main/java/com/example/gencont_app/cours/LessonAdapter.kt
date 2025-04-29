@@ -8,10 +8,11 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.TextView
 import com.example.gencont_app.R
+import com.example.gencont_app.configDB.data.Cours
 
 class LessonAdapter(
     private val context: Context,
-    private val lessons: List<Lesson>,
+    private val lessons: List<Cours>,
     private val onStartLessonClick: (Int) -> Unit,
     private val onQuizClick: (Int) -> Unit
 ) : BaseAdapter() {
@@ -27,8 +28,10 @@ class LessonAdapter(
         val lesson = lessons[position]
 
         view.apply {
-            findViewById<TextView>(R.id.tvLessonTitle).text = lesson.title
+            findViewById<TextView>(R.id.tvLessonTitle).text = lesson.titre
             findViewById<TextView>(R.id.tvLessonDesc).text = lesson.description
+            findViewById<Button>(R.id.btnStartLesson)
+            findViewById<Button>(R.id.btnQuiz)
 
             findViewById<Button>(R.id.btnStartLesson).setOnClickListener {
                 onStartLessonClick(position)

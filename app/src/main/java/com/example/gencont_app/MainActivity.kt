@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.data.Utilisateur
 import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.cours.CoursActivity
 import com.example.gencont_app.formulaire.FormulaireActivity
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -29,19 +30,21 @@ class MainActivity : AppCompatActivity() {
         val utilisateurDao = db.utilisateurDao()
 
 //        this is a test
-        /*runBlocking {
-            launch {
-                // Insert a Utilisateur
-                val newUtilisateur = Utilisateur(
-                    nom = "John",
-                    prénom = "Doe",
-                    email = "john.doe@example.com",
-                    motDePasse = "password123"
-                )
-                val utilisateurId = utilisateurDao.insert(newUtilisateur)
-                Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
-            }
-        }*/
+//        runBlocking {
+//            launch {
+//                // Insert a Utilisateur
+//                val newUtilisateur = Utilisateur(
+//                    nom = "John",
+//                    prénom = "Doe",
+//                    email = "john.doe@example.com",
+//                    motDePasse = "password123"
+//                )
+//                val utilisateurId = utilisateurDao.insert(newUtilisateur)
+//                Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
+//            }
+//        }
+
+
 
 // Par exemple dans onCreate ou après un clic de bouton :
 
@@ -53,6 +56,9 @@ class MainActivity : AppCompatActivity() {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
 
+
+        val intent = Intent(this, CoursActivity::class.java)
+        startActivity(intent)
         btnLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)

@@ -15,9 +15,11 @@ import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.cours.CoursActivity
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -204,8 +206,18 @@ class FormulaireActivity : AppCompatActivity() {
                             lifecycleScope.launch(Dispatchers.IO) {
                                 val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
                                 repo.saveCourse(jsonCourse, 2)
+
+                                // Maintenant passer sur une autre page après l'enregistrement
+                                withContext(Dispatchers.Main) {
+                                    val intent = Intent(this@FormulaireActivity, CoursActivity::class.java)
+                                    intent.putExtra("course", jsonCourse) // Passer le cours à la nouvelle page
+                                    startActivity(intent)
+                                    finish() // optionnel: fermer l'ancienne page
+                                }
                             }
                         }
+
+
 
 
 
