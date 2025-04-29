@@ -1,16 +1,36 @@
 package com.example.gencont_app.formulaire
 
 import CoursePersister
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.graphics.RectF
+import android.graphics.SurfaceTexture
+import android.hardware.camera2.*
+import android.media.Image
+import android.media.ImageReader
 import android.net.Uri
-import android.os.Bundle
-import android.provider.OpenableColumns
+import android.os.*
+import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import android.util.Size
+import android.util.SparseIntArray
+import android.view.Surface
+import android.view.TextureView
 import android.view.View
+import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.api.ChatApiClient
@@ -23,9 +43,13 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.util.*
+import kotlin.math.max
 
 class FormulaireActivity : AppCompatActivity() {
 
@@ -40,15 +64,37 @@ class FormulaireActivity : AppCompatActivity() {
     private lateinit var descriptionEditText: EditText
     private lateinit var nextButton: Button
 
-    // Step 2 UI elements (Image Upload)
-    private lateinit var uploadButton: Button
+    // Step 2 UI elements (Camera Capture)
+    private lateinit var textureView: TextureView
+    private lateinit var captureButton: Button
+    private lateinit var retakeButton: Button
     private lateinit var imagePreview: ImageView
     private lateinit var generateButton: Button
     private lateinit var previousButton: Button
+    private var cameraId: String? = null
+    private lateinit var switchCameraButton: ImageButton
 
+    // Camera variables
+    private var cameraDevice: CameraDevice? = null
+    private var cameraCaptureSession: CameraCaptureSession? = null
+    private var imageReader: ImageReader? = null
+    private var backgroundHandler: Handler? = null
+    private var backgroundThread: HandlerThread? = null
     private var selectedImageUri: Uri? = null
-    private val IMAGE_PICK_CODE = 1000
+    private val ORIENTATIONS = SparseIntArray()
     lateinit var etat_visage: String
+
+
+    init {
+        ORIENTATIONS.append(Surface.ROTATION_0, 0)
+        ORIENTATIONS.append(Surface.ROTATION_90, 90)
+        ORIENTATIONS.append(Surface.ROTATION_180, 180)
+        ORIENTATIONS.append(Surface.ROTATION_270, 270)
+    }
+
+    companion object {
+        private const val REQUEST_CAMERA_PERMISSION = 200
+    }
 
     // Initialize UI components
     private fun initializeUI() {
@@ -63,43 +109,53 @@ class FormulaireActivity : AppCompatActivity() {
         descriptionEditText = findViewById(R.id.editTextDescription)
         nextButton = findViewById(R.id.buttonNext)
 
-        // Step 2 (Image Upload)
-        uploadButton = findViewById(R.id.uploadButton)
+        // Step 2 (Camera Capture)
+        textureView = findViewById(R.id.textureView)
+        captureButton = findViewById(R.id.captureButton)
+        retakeButton = findViewById(R.id.retakeButton)
         imagePreview = findViewById(R.id.imagePreview)
         generateButton = findViewById(R.id.generateButton)
         previousButton = findViewById(R.id.buttonPrevious)
+        switchCameraButton = findViewById(R.id.switchCameraButton)
+
     }
-
-    //nextButton
-
-
 
     // Set up button click listeners
     private fun setupClickListeners() {
         nextButton.setOnClickListener {
             if (validateStep1()) {
                 viewFlipper.showNext()
+                startCamera()
             }
         }
 
         previousButton.setOnClickListener {
+            closeCamera()
             viewFlipper.showPrevious()
         }
 
-        uploadButton.setOnClickListener {
-            pickImageFromGallery()
+        captureButton.setOnClickListener {
+            takePicture()
+        }
+
+        retakeButton.setOnClickListener {
+            imagePreview.visibility = View.GONE
+            retakeButton.visibility = View.GONE
+            generateButton.visibility = View.GONE
+            textureView.visibility = View.VISIBLE
+            captureButton.visibility = View.VISIBLE
         }
 
         generateButton.setOnClickListener {
             if (selectedImageUri != null) {
                 generateContent()
-
             } else {
-                Toast.makeText(this, "Please select an image first.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please capture an image first.", Toast.LENGTH_SHORT).show()
             }
-            //courseTitleEditText proficiencyLevelSpinner languageSpinner descriptionEditText
+        }
 
-
+        switchCameraButton.setOnClickListener {
+            switchCamera()
         }
     }
 
@@ -124,35 +180,275 @@ class FormulaireActivity : AppCompatActivity() {
         return isValid
     }
 
-    // Pick image from gallery
-    private fun pickImageFromGallery() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, IMAGE_PICK_CODE)
+    // Camera methods
+    private fun startCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+            return
+        }
+
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        try {
+            // Utilisez cameraId s'il est défini, sinon utilisez la caméra arrière par défaut
+            cameraId = cameraId ?: getBackCameraId() ?: manager.cameraIdList[0]
+
+            val characteristics = manager.getCameraCharacteristics(cameraId!!)
+            val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+            val imageDimension = map?.getOutputSizes(SurfaceTexture::class.java)?.get(0)
+
+            imageReader = ImageReader.newInstance(
+                imageDimension?.width ?: 1280,
+                imageDimension?.height ?: 720,
+                ImageFormat.JPEG, 2
+            )
+
+            // The order here is important. Open the camera only when the TextureView is ready.
+            if (!textureView.isAvailable) {
+                textureView.surfaceTextureListener = textureListener
+            } else {
+                openCamera()
+            }
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
     }
 
-    // Handle result from image picker
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            selectedImageUri = data?.data
-            imagePreview.setImageURI(selectedImageUri)
-            imagePreview.visibility = View.VISIBLE
+    private val textureListener = object : TextureView.SurfaceTextureListener {
+        override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+            openCamera()
+            configureTransform(width, height) // Configure transform here, after the surface is available
+        }
+
+        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+            configureTransform(width, height) // Reconfigure on size change
+        }
+
+        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean = false
+        override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
+    }
+
+    private fun openCamera() {
+        try {
+            val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            if (manager.cameraIdList.isEmpty()) {
+                Toast.makeText(this, "No cameras available", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Use the current cameraId, which might have been updated by switchCamera()
+            if (cameraId == null) {
+                cameraId = getBackCameraId() ?: manager.cameraIdList[0]
+            }
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                manager.openCamera(cameraId!!, object : CameraDevice.StateCallback() {
+                    override fun onOpened(camera: CameraDevice) {
+                        cameraDevice = camera
+                        createCameraPreviewSession()
+                    }
+
+                    override fun onDisconnected(camera: CameraDevice) {
+                        camera.close()
+                        cameraDevice = null
+                    }
+
+                    override fun onError(camera: CameraDevice, error: Int) {
+                        camera.close()
+                        cameraDevice = null
+                        runOnUiThread {
+                            Toast.makeText(this@FormulaireActivity,
+                                "Camera error: $error", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }, backgroundHandler)
+            }
+        } catch (e: CameraAccessException) {
+            Log.e("Camera", "Error opening camera: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    private fun createCameraPreviewSession() {
+        try {
+            val texture = textureView.surfaceTexture
+            texture?.setDefaultBufferSize(textureView.width, textureView.height)
+            val surface = Surface(texture)
+
+            val previewRequestBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+            previewRequestBuilder?.addTarget(surface)
+
+            // Configurer l'orientation correcte pour la prévisualisation
+            val rotation = windowManager.defaultDisplay.rotation
+            previewRequestBuilder?.set(CaptureRequest.JPEG_ORIENTATION, getOrientation(rotation))
+
+            cameraDevice?.createCaptureSession(
+                listOf(surface),
+                object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigured(session: CameraCaptureSession) {
+                        if (cameraDevice == null) return
+
+                        cameraCaptureSession = session
+                        try {
+                            previewRequestBuilder?.set(
+                                CaptureRequest.CONTROL_AF_MODE,
+                                CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                            )
+                            previewRequestBuilder?.set(
+                                CaptureRequest.CONTROL_AE_MODE,
+                                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+                            )
+
+                            val previewRequest = previewRequestBuilder?.build()
+                            cameraCaptureSession?.setRepeatingRequest(
+                                previewRequest!!,
+                                null,
+                                backgroundHandler
+                            )
+                        } catch (e: CameraAccessException) {
+                            Log.e("CameraPreview", "Error setting up preview: ${e.message}")
+                        }
+                    }
+
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        Toast.makeText(this@FormulaireActivity, "Failed to configure camera preview", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                backgroundHandler
+            )
+        } catch (e: CameraAccessException) {
+            Log.e("CameraPreview", "Error creating preview session: ${e.message}")
+        }
+    }
+    private fun takePicture() {
+        if (cameraDevice == null || cameraCaptureSession == null) return
+
+        try {
+            val characteristics = (getSystemService(Context.CAMERA_SERVICE) as CameraManager)
+                .getCameraCharacteristics(cameraDevice!!.id)
+
+            // Utiliser une taille plus petite pour éviter les problèmes de mémoire
+            val width = 1280
+            val height = 720
+
+            // Fermer l'ancien ImageReader s'il existe
+            imageReader?.close()
+            imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1)
+
+            // Créer le fichier pour l'image
+            val file = File(externalCacheDir, "${System.currentTimeMillis()}.jpg")
+            selectedImageUri = Uri.fromFile(file)
+
+            // Configurer le listener pour l'image
+            imageReader?.setOnImageAvailableListener({ reader ->
+                val image = reader.acquireLatestImage()
+                try {
+                    val buffer = image.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer.get(bytes)
+
+                    // Corriger l'orientation de l'image
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    val rotatedBitmap = rotateBitmap(bitmap, getRotationCompensation(), isFrontCamera())
+
+
+                    // Sauvegarder l'image corrigée
+                    FileOutputStream(file).use { output ->
+                        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, output)
+                    }
+
+                    runOnUiThread {
+                        imagePreview.setImageBitmap(rotatedBitmap)
+                        imagePreview.visibility = View.VISIBLE
+                        textureView.visibility = View.GONE
+                        captureButton.visibility = View.GONE
+                        retakeButton.visibility = View.VISIBLE
+                        generateButton.visibility = View.VISIBLE
+                    }
+                } finally {
+                    image.close()
+                }
+            }, backgroundHandler)
+
+            // Obtenir la surface de l'ImageReader
+            val readerSurface = imageReader?.surface ?: return
+
+            // Créer une nouvelle liste de surfaces cibles
+            val targets = listOf(
+                Surface(textureView.surfaceTexture), // Surface de prévisualisation
+                readerSurface // Surface de capture
+            )
+
+            // Configurer la requête de capture
+            val captureBuilder = cameraDevice?.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE).apply {
+                this?.addTarget(readerSurface)
+                this?.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+                this?.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(windowManager.defaultDisplay.rotation))
+            }
+
+            // Créer une nouvelle session de capture
+            cameraDevice?.createCaptureSession(targets, object : CameraCaptureSession.StateCallback() {
+                override fun onConfigured(session: CameraCaptureSession) {
+                    try {
+                        session.capture(captureBuilder?.build()!!, null, backgroundHandler)
+                    } catch (e: CameraAccessException) {
+                        Log.e("Camera", "Error capturing image: ${e.message}")
+                    }
+                }
+
+                override fun onConfigureFailed(session: CameraCaptureSession) {
+                    Log.e("Camera", "Failed to configure capture session")
+                }
+            }, backgroundHandler)
+
+        } catch (e: CameraAccessException) {
+            Log.e("Camera", "Access error: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("Camera", "Error: ${e.message}")
+        }
+        }
+
+    private fun closeCamera() {
+        try {
+            cameraCaptureSession?.close()
+            cameraCaptureSession = null
+            cameraDevice?.close()
+            cameraDevice = null
+            imageReader?.close()
+            imageReader = null
+        } catch (e: Exception) {
+            Log.e("Camera", "Error closing camera: ${e.message}")
+        }
+    }
+
+    private fun startBackgroundThread() {
+        backgroundThread = HandlerThread("CameraBackground")
+        backgroundThread?.start()
+        backgroundHandler = backgroundThread?.looper?.let { Handler(it) }
+    }
+
+    private fun stopBackgroundThread() {
+        backgroundThread?.quitSafely()
+        try {
+            backgroundThread?.join()
+            backgroundThread = null
+            backgroundHandler = null
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
         }
     }
 
     // Handle content generation and emotion detection
     private fun generateContent() {
         if (selectedImageUri == null) {
-            Toast.makeText(this, "No image selected.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No image captured.", Toast.LENGTH_SHORT).show()
             Log.d("FormulaireActivity", "No image selected.")
             return
         }
 
         Log.d("FormulaireActivity", "Image URI: $selectedImageUri")
 
-        val imageFile = uriToFile(selectedImageUri!!)
-        Log.d("FormulaireActivity", "Converted URI to file: ${imageFile.absolutePath}")
+        val imageFile = File(selectedImageUri?.path ?: return)
+        Log.d("FormulaireActivity", "Image file: ${imageFile.absolutePath}")
 
         val base64Image = encodeImageToBase64(imageFile)
 
@@ -189,25 +485,22 @@ class FormulaireActivity : AppCompatActivity() {
                             Toast.makeText(this, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
                             Log.d("FormulaireActivity", "No dominant emotion found.")
                         }
-                        etat_visage = topEmotion;
-
+                        etat_visage = topEmotion
 
                         Log.d("etat_visage", "l etat est : $etat_visage")
 
                         ChatApiClient.generateCourseJson(
-                            titre       = courseTitleEditText.text.toString(),
-                            niveau      = proficiencyLevelSpinner.selectedItem.toString(),
-                            language    = languageSpinner.selectedItem.toString(),
+                            titre =courseTitleEditText.text.toString(),
+                            niveau = proficiencyLevelSpinner.selectedItem.toString(),
+                            language = languageSpinner.selectedItem.toString(),
                             description = descriptionEditText.text.toString(),
-                            emotion     = etat_visage
+                            emotion = etat_visage
                         ) { jsonCourse ->
                             lifecycleScope.launch(Dispatchers.IO) {
                                 val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
                                 repo.saveCourse(jsonCourse, 2)
                             }
                         }
-
-
 
                     } catch (e: Exception) {
                         Toast.makeText(this, "Failed to parse response.", Toast.LENGTH_SHORT).show()
@@ -216,41 +509,6 @@ class FormulaireActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-
-    // Convert URI to File
-    private fun uriToFile(uri: Uri): File {
-        val fileName = getFileNameFromUri(uri)
-        val tempFile = File.createTempFile("temp", fileName, cacheDir)
-        contentResolver.openInputStream(uri).use { inputStream ->
-            FileOutputStream(tempFile).use { output ->
-                inputStream?.copyTo(output)
-            }
-        }
-        return tempFile
-    }
-
-    // Get file name from URI
-    private fun getFileNameFromUri(uri: Uri): String {
-        var result = "temp_${System.currentTimeMillis()}.jpg"
-        if (uri.scheme == "content") {
-            contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIndex >= 0 && cursor.moveToFirst()) {
-                    result = cursor.getString(nameIndex)
-                } else {
-                    Log.w("FormulaireActivity", "DISPLAY_NAME not found in cursor columns.")
-                }
-            }
-        } else {
-            uri.lastPathSegment?.let {
-                result = File(it).name
-            }
-        }
-
-        Log.d("FormulaireActivity", "Resolved file name: $result")
-        return result
     }
 
     // Convert image file to Base64 string
@@ -270,7 +528,7 @@ class FormulaireActivity : AppCompatActivity() {
 
         val request = Request.Builder()
             .url("https://api-inference.huggingface.co/models/motheecreator/vit-Facial-Expression-Recognition")
-            .addHeader("Authorization", "Bearer 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") // Replace with your actual token
+            .addHeader("Authorization", "Bearer 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")
             .post(requestBody)
             .build()
 
@@ -286,11 +544,218 @@ class FormulaireActivity : AppCompatActivity() {
         })
     }
 
-    // onCreate to initialize everything
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startCamera()
+            } else {
+                Toast.makeText(this, "Camera permission required", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startBackgroundThread()
+        // Check if TextureView is available *before* starting the camera.
+        if (textureView.isAvailable) {
+            openCamera()
+        } else {
+            textureView.surfaceTextureListener = textureListener
+        }
+    }
+
+    private fun switchCamera() {
+        // Only attempt to switch if there's more than one camera.
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        try {
+            if (manager.cameraIdList.size > 1) {
+                closeCamera()
+                cameraId = if (cameraId == getFrontCameraId()) {
+                    getBackCameraId()
+                } else {
+                    getFrontCameraId()
+                }
+                Log.d("CameraSwitch", "Switching to camera ID: $cameraId")
+                startCamera()
+            } else {
+                Toast.makeText(this, "Only one camera available", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: CameraAccessException) {
+            Log.e("CameraSwitch", "Error accessing cameras: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+    private fun getBackCameraId(): String? {
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        return manager.cameraIdList.firstOrNull { id ->
+            manager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING) ==
+                    CameraCharacteristics.LENS_FACING_BACK
+        }
+    }
+
+    private fun getFrontCameraId(): String? {
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        return manager.cameraIdList.firstOrNull { id ->
+            manager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING) ==
+                    CameraCharacteristics.LENS_FACING_FRONT
+        }
+    }
+
+    private fun configureTransform(viewWidth: Int, viewHeight: Int) {
+        if (textureView.width == 0 || textureView.height == 0 || cameraId == null) return
+
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        try {
+            val characteristics = manager.getCameraCharacteristics(cameraId!!)
+            val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+            val isFrontFacing = characteristics.get(CameraCharacteristics.LENS_FACING) ==
+                    CameraCharacteristics.LENS_FACING_FRONT
+
+            val matrix = Matrix()
+            val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
+            val bufferRect = RectF(0f, 0f, textureView.height.toFloat(), textureView.width.toFloat())
+            val centerX = viewRect.centerX()
+            val centerY = viewRect.centerY()
+
+            // Calculer l'orientation correcte
+            val rotation = windowManager.defaultDisplay.rotation
+            val deviceOrientation = when (rotation) {
+                Surface.ROTATION_0 -> 0
+                Surface.ROTATION_90 -> 90
+                Surface.ROTATION_180 -> 180
+                Surface.ROTATION_270 -> 270
+                else -> 0
+            }
+
+            // Calculer la rotation totale nécessaire
+            val totalRotation = (sensorOrientation + deviceOrientation + 360) % 360
+
+            // Ajuster pour la caméra frontale
+            if (isFrontFacing) {
+                // Pour la caméra frontale, l'image doit être retournée horizontalement
+                matrix.postScale(-1f, 1f, centerX, centerY)
+            }
+
+            // Appliquer la rotation
+            when (totalRotation) {
+                90 -> {
+                    // Pas de rotation nécessaire
+                }
+                0 -> {
+                    matrix.postRotate(90f, centerX, centerY)
+                    val scale = max(
+                        viewHeight.toFloat() / textureView.width,
+                        viewWidth.toFloat() / textureView.height
+                    )
+                    matrix.postScale(scale, scale, centerX, centerY)
+                }
+                180 -> {
+                    matrix.postRotate(180f, centerX, centerY)
+                }
+                270 -> {
+                    matrix.postRotate(270f, centerX, centerY)
+                    val scale = max(
+                        viewHeight.toFloat() / textureView.width,
+                        viewWidth.toFloat() / textureView.height
+                    )
+                    matrix.postScale(scale, scale, centerX, centerY)
+                }
+            }
+
+            textureView.setTransform(matrix)
+        } catch (e: CameraAccessException) {
+            Log.e("Transform", "Error during transform configuration: ${e.message}")
+        }
+    }
+
+
+    override fun onPause() {
+        closeCamera()
+        stopBackgroundThread()
+        super.onPause()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_formulaire)
         initializeUI()
         setupClickListeners()
     }
+
+    @SuppressLint("ServiceCast")
+    private fun getRotationCompensation(): Int {
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val deviceRotation = windowManager.defaultDisplay.rotation
+        val sensorOrientation = getSensorOrientation() // Généralement 270 pour la frontale
+        val isFrontFacing = isFrontCamera()
+
+        val deviceRotationDegrees = when (deviceRotation) {
+            Surface.ROTATION_0 -> 0
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> 0
+        }
+
+        return if (isFrontFacing) {
+            // Correction miroir pour la frontale
+            (sensorOrientation + deviceRotationDegrees).let { (360 - it % 360) % 360 }
+        } else {
+            // Caméra arrière : pas de miroir
+            (sensorOrientation - deviceRotationDegrees + 360) % 360
+        }
+    }
+
+
+
+
+    private fun getSensorOrientation(): Int {
+        return try {
+            val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val characteristics = manager.getCameraCharacteristics(cameraId!!)
+            characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    private fun isFrontCamera(): Boolean {
+        return try {
+            val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val characteristics = manager.getCameraCharacteristics(cameraId!!)
+            characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun rotateBitmap(bitmap: Bitmap, rotationDegrees: Int, isFrontFacing: Boolean): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(rotationDegrees.toFloat())
+        if (isFrontFacing) {
+            matrix.postScale(-1f, 1f) // effet miroir
+        }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    private fun getOrientation(rotation: Int): Int {
+        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val characteristics = manager.getCameraCharacteristics(cameraId!!)
+        val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+
+        return when (rotation) {
+            Surface.ROTATION_0 -> 0
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> 0
+        }
+    }
+
+    
+
 }

@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         val utilisateurDao = db.utilisateurDao()
 
 //        this is a test
-        /*runBlocking {
+        runBlocking {
             launch {
                 // Insert a Utilisateur
                 val newUtilisateur = Utilisateur(
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
                 val utilisateurId = utilisateurDao.insert(newUtilisateur)
                 Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
             }
-        }*/
+        }
 
 // Par exemple dans onCreate ou après un clic de bouton :
 
