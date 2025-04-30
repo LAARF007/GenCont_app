@@ -9,6 +9,7 @@ import android.widget.TextView
 import com.example.gencont_app.R
 import com.example.gencont_app.configDB.data.Cours
 import com.example.gencont_app.cours.ChapiterActivity
+import com.example.gencont_app.cours.CourSectionActivity
 import com.example.gencont_app.quiz.QuizActivity
 class LessonAdapter(
     private val context: Context,
@@ -47,9 +48,14 @@ class LessonAdapter(
         }
 
         view.findViewById<Button>(R.id.btnStartLesson).setOnClickListener {
+//            val intent = Intent(context, CourSectionActivity::class.java)
+//            intent.putExtra("cours_id", lesson.id)
+//            context.startActivity(intent)
+
             val intent = Intent(context, ChapiterActivity::class.java)
-            intent.putExtra("cours_id", lesson.id)
+            intent.putExtra("cours_id", lesson.id ?: -1)
             context.startActivity(intent)
+
         }
 
         view.findViewById<Button>(R.id.btnQuiz).setOnClickListener {
