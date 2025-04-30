@@ -228,7 +228,7 @@ class FormulaireActivity : AppCompatActivity() {
                                 ) { jsonCourse ->
                                     lifecycleScope.launch(Dispatchers.IO) {
                                         val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
-                                        repo.saveCourse(jsonCourse, 2, etat_visage, languageSpinner.selectedItem.toString())
+                                        repo.saveCourse(jsonCourse, 1, etat_visage, languageSpinner.selectedItem.toString())
 
                                         val intent = Intent(this@FormulaireActivity, CoursActivity::class.java)
                                         startActivity(intent)

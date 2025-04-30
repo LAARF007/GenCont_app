@@ -78,8 +78,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy ."
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:text="here is an exemple"                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
                     android:lineSpacingMultiplier="1.2"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

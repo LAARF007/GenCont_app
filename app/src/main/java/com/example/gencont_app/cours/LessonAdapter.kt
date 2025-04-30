@@ -1,3 +1,5 @@
+package com.example.gencont_app.adapter
+
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -6,14 +8,16 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.example.gencont_app.R
 import com.example.gencont_app.configDB.data.Cours
 import com.example.gencont_app.cours.ChapiterActivity
-import com.example.gencont_app.cours.CourSectionActivity
 import com.example.gencont_app.quiz.QuizActivity
+
 class LessonAdapter(
     private val context: Context,
-    lessons: List<Cours>, // Liste originale
+    lessons: List<Cours>,                  // Liste originale
     private val onStartLessonClick: (Int) -> Unit,
     private val onQuizClick: (Int) -> Unit
 ) : BaseAdapter() {
@@ -21,7 +25,7 @@ class LessonAdapter(
     // On inverse la liste pour afficher le dernier en premier
     private val sortedLessons = lessons.sortedByDescending { it.id }
 
-    // Le premier élément (le dernier inséré en DB)
+    // L'id du cours le plus récent (premier de sortedLessons)
     private val lastLessonId: Long? = sortedLessons.firstOrNull()?.id
 
     override fun getCount(): Int = sortedLessons.size
@@ -29,36 +33,41 @@ class LessonAdapter(
     override fun getItemId(position: Int): Long = position.toLong()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view: View = convertView ?: LayoutInflater.from(context)
+        // Inflate ou recycle la vue
+        val view = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.item_lesson, parent, false)
+
+        // Récupération du ConstraintLayout racine (pour changer son background)
+        val rootLayout = view.findViewById<ConstraintLayout>(R.id.clLessonItem)
 
         val lesson = sortedLessons[position]
 
-        val titleText = view.findViewById<TextView>(R.id.tvLessonTitle)
-        val descText = view.findViewById<TextView>(R.id.tvLessonDesc)
+        // Texte
+        view.findViewById<TextView>(R.id.tvLessonTitle).text = lesson.titre
+        view.findViewById<TextView>(R.id.tvLessonDesc).text  = lesson.description
 
-        titleText.text = lesson.titre
-        descText.text = lesson.description
-
-        // 🎨 Mise en évidence du premier (le plus récent)
+        // 🎨 Mise en évidence du cours le plus récent
         if (lesson.id == lastLessonId) {
-            view.setBackgroundColor(context.getColor(R.color.tag_color)) // ou une autre couleur
+            rootLayout.setBackgroundColor(
+                ContextCompat.getColor(context, R.color.tag_color)
+            )
         } else {
-            view.setBackgroundColor(context.getColor(android.R.color.white))
+            rootLayout.setBackgroundColor(
+                ContextCompat.getColor(context, android.R.color.white)
+            )
         }
 
+        // Bouton "Commencer"
         view.findViewById<Button>(R.id.btnStartLesson).setOnClickListener {
-//            val intent = Intent(context, CourSectionActivity::class.java)
-//            intent.putExtra("cours_id", lesson.id)
-//            context.startActivity(intent)
-
+            onStartLessonClick(lesson.id.toInt())
             val intent = Intent(context, ChapiterActivity::class.java)
             intent.putExtra("cours_id", lesson.id ?: -1)
             context.startActivity(intent)
-
         }
 
+        // Bouton "Quiz"
         view.findViewById<Button>(R.id.btnQuiz).setOnClickListener {
+            onQuizClick(lesson.id.toInt())
             val intent = Intent(context, QuizActivity::class.java)
             intent.putExtra("cours_id", lesson.id)
             context.startActivity(intent)

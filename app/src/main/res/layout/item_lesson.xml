@@ -11,6 +11,7 @@
     app:contentPadding="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clLessonItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
@@ -181,50 +182,50 @@
             <!-- Bouton Start Lesson -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStartLesson"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:text="Commencer"
-                android:textSize="16sp"
-                android:textColor="@android:color/white"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="8dp"
-                app:backgroundTint="#FF6D00"
-                app:rippleColor="#66FFFFFF"
+                android:layout_width="202dp"
+                android:layout_height="52dp"
                 android:layout_marginEnd="8dp"
                 android:contentDescription="Commencer la leçon"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnQuiz"
-                app:layout_constraintWidth_percent="0.5"
+                android:fontFamily="sans-serif-medium"
+                android:text="Commencer"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:backgroundTint="#FF6D00"
+                app:cornerRadius="8dp"
                 app:icon="@android:drawable/ic_media_play"
                 app:iconGravity="textStart"
+                app:iconPadding="8dp"
                 app:iconTint="@android:color/white"
-                app:iconPadding="8dp" />
+                app:layout_constraintEnd_toStartOf="@id/btnQuiz"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.5"
+                app:rippleColor="#66FFFFFF" />
 
             <!-- Bouton Quiz -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnQuiz"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:text="Quiz"
-                android:textSize="16sp"
-                android:textColor="#FF6D00"
-                android:fontFamily="sans-serif-medium"
-                app:cornerRadius="8dp"
-                app:backgroundTint="@android:color/white"
-                app:strokeColor="#FF6D00"
-                app:strokeWidth="1dp"
-                app:rippleColor="#33FF6D00"
+                android:layout_width="123dp"
+                android:layout_height="52dp"
                 android:layout_marginStart="8dp"
                 android:contentDescription="Démarrer le quiz"
-                app:layout_constraintTop_toTopOf="@id/btnStartLesson"
-                app:layout_constraintStart_toEndOf="@id/btnStartLesson"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintWidth_percent="0.5"
+                android:fontFamily="sans-serif-medium"
+                android:text="Quiz"
+                android:textColor="#FF6D00"
+                android:textSize="16sp"
+                app:backgroundTint="@android:color/white"
+                app:cornerRadius="8dp"
                 app:icon="@android:drawable/ic_menu_help"
                 app:iconGravity="textStart"
+                app:iconPadding="8dp"
                 app:iconTint="#FF6D00"
-                app:iconPadding="8dp" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnStartLesson"
+                app:layout_constraintTop_toTopOf="@id/btnStartLesson"
+                app:layout_constraintWidth_percent="0.5"
+                app:rippleColor="#33FF6D00"
+                app:strokeColor="#FF6D00"
+                app:strokeWidth="1dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,7 @@
 package com.example.gencont_app.cours
 
 
-import LessonAdapter
+//import LessonAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ListView
@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.adapter.LessonAdapter
 import com.example.gencont_app.configDB.data.Cours
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.quiz.QuizActivity
