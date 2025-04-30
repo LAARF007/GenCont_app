@@ -20,4 +20,10 @@
     <string name="previous">Previous</string>
 
     <string name="openai_api_key">YOUR_OPENAI_API_KEY_HERE</string>
+
+    <string name="choose_image">Choose Image</string>
+    <string name="capture">Capture</string>
+    <string name="retake">Retake</string>
+    <string name="generate_content">Generate</string>
+    <string name="switch_camera">Switch camera</string>
 </resources>

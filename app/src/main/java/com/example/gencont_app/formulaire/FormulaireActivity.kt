@@ -27,6 +27,7 @@ import android.util.SparseIntArray
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
+import android.view.View.GONE
 import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -78,6 +79,8 @@ class FormulaireActivity : AppCompatActivity() {
     private lateinit var previousButton: Button
     private var cameraId: String? = null
     private lateinit var switchCameraButton: ImageButton
+    private lateinit var uploadButton: Button
+    private lateinit var secondaryButtonGroup : LinearLayout
 
     // Camera variables
     private var cameraDevice: CameraDevice? = null
@@ -85,9 +88,11 @@ class FormulaireActivity : AppCompatActivity() {
     private var imageReader: ImageReader? = null
     private var backgroundHandler: Handler? = null
     private var backgroundThread: HandlerThread? = null
-    private var selectedImageUri: Uri? = null
     private val ORIENTATIONS = SparseIntArray()
     lateinit var etat_visage: String
+
+    private var selectedImageUri: Uri? = null
+    private val IMAGE_PICK_CODE = 1000
 
     init {
         ORIENTATIONS.append(Surface.ROTATION_0, 0)
@@ -101,6 +106,7 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     // Initialize UI components
+
     private fun initializeUI() {
         viewFlipper = findViewById(R.id.viewFlipper)
 
@@ -121,6 +127,16 @@ class FormulaireActivity : AppCompatActivity() {
         generateButton = findViewById(R.id.generateButton)
         previousButton = findViewById(R.id.buttonPrevious)
         switchCameraButton = findViewById(R.id.switchCameraButton)
+        uploadButton = findViewById(R.id.uploadButton)
+
+        // Initialize secondaryButtonGroup
+        secondaryButtonGroup = findViewById(R.id.secondaryButtonGroup) // Add this line
+
+        // Initial visibility of secondary buttons
+        imagePreview.visibility = View.GONE
+        retakeButton.visibility = View.GONE
+        generateButton.visibility = View.GONE
+        secondaryButtonGroup.visibility = View.GONE // Also initialize its initial visibility
     }
 
     // Set up button click listeners
@@ -142,23 +158,31 @@ class FormulaireActivity : AppCompatActivity() {
         }
 
         retakeButton.setOnClickListener {
-            imagePreview.visibility = View.GONE
-            retakeButton.visibility = View.GONE
-            generateButton.visibility = View.GONE
+            // Reset to camera preview state
+            secondaryButtonGroup.visibility = GONE
+            imagePreview.visibility = GONE
+            retakeButton.visibility = GONE
+            generateButton.visibility = GONE
             textureView.visibility = View.VISIBLE
             captureButton.visibility = View.VISIBLE
+            uploadButton.visibility = View.VISIBLE // Make upload button visible again
+            selectedImageUri = null // Clear the selected image
         }
 
         generateButton.setOnClickListener {
             if (selectedImageUri != null) {
                 generateContent()
             } else {
-                Toast.makeText(this, "Please capture an image first.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please capture or select an image first.", Toast.LENGTH_SHORT).show()
             }
         }
 
         switchCameraButton.setOnClickListener {
             switchCamera()
+        }
+
+        uploadButton.setOnClickListener {
+            pickImageFromGallery()
         }
     }
 
@@ -318,7 +342,6 @@ class FormulaireActivity : AppCompatActivity() {
             Log.e("CameraPreview", "Error creating preview session: ${e.message}")
         }
     }
-
     private fun takePicture() {
         if (cameraDevice == null || cameraCaptureSession == null) return
 
@@ -329,6 +352,7 @@ class FormulaireActivity : AppCompatActivity() {
             imageReader?.close()
             imageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1)
 
+            // Corrected line: Use proper String interpolation
             val file = File(externalCacheDir, "${System.currentTimeMillis()}.jpg")
             selectedImageUri = Uri.fromFile(file)
 
@@ -349,8 +373,11 @@ class FormulaireActivity : AppCompatActivity() {
                     runOnUiThread {
                         imagePreview.setImageBitmap(rotatedBitmap)
                         imagePreview.visibility = View.VISIBLE
-                        textureView.visibility = View.GONE
-                        captureButton.visibility = View.GONE
+                        textureView.visibility = GONE
+                        captureButton.visibility = GONE
+                        uploadButton.visibility = GONE
+
+                        secondaryButtonGroup.visibility = View.VISIBLE
                         retakeButton.visibility = View.VISIBLE
                         generateButton.visibility = View.VISIBLE
                     }
@@ -392,7 +419,6 @@ class FormulaireActivity : AppCompatActivity() {
             Log.e("Camera", "Error: ${e.message}")
         }
     }
-
     private fun closeCamera() {
         try {
             cameraCaptureSession?.close()
@@ -425,7 +451,7 @@ class FormulaireActivity : AppCompatActivity() {
 
     private fun generateContent() {
         if (selectedImageUri == null) {
-            Toast.makeText(this, "No image captured.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No image captured or selected.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -746,6 +772,33 @@ class FormulaireActivity : AppCompatActivity() {
             Surface.ROTATION_180 -> 180
             Surface.ROTATION_270 -> 270
             else -> 0
+        }
+    }
+
+    // Pick image from gallery
+    private fun pickImageFromGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, IMAGE_PICK_CODE)
+    }
+
+    // Handle result from image picker
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == IMAGE_PICK_CODE) {
+                selectedImageUri = data?.data
+                imagePreview.setImageURI(selectedImageUri)
+
+                // Update visibility of buttons after image is selected
+                textureView.visibility = GONE
+                captureButton.visibility = GONE
+                uploadButton.visibility = GONE // Hide upload after selection
+
+                secondaryButtonGroup.visibility = View.VISIBLE
+                retakeButton.visibility = View.VISIBLE
+                generateButton.visibility = View.VISIBLE
+                imagePreview.visibility = View.VISIBLE
+            }
         }
     }
 

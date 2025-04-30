@@ -17,7 +17,7 @@
         <!-- ÉTAPE 1 : Informations du cours -->
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="874dp"
             android:fillViewport="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -45,9 +45,9 @@
                     android:textColorHint="@color/black"
                     app:boxStrokeColor="@color/orange"
                     app:hintTextColor="@color/black"
-                    app:layout_constraintTop_toBottomOf="@id/textViewCourseName"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/textViewCourseName">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextCourseTitle"
@@ -62,22 +62,22 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:entries="@array/proficiency_levels"
                     android:backgroundTint="@color/orange"
-                    app:layout_constraintTop_toBottomOf="@id/textInputLayoutCourseTitle"
+                    android:entries="@array/proficiency_levels"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/textInputLayoutCourseTitle" />
 
                 <Spinner
                     android:id="@+id/spinnerLanguage"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:entries="@array/languages"
                     android:backgroundTint="@color/orange"
-                    app:layout_constraintTop_toBottomOf="@id/spinnerProficiencyLevel"
+                    android:entries="@array/languages"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/spinnerProficiencyLevel" />
 
                 <TextView
                     android:id="@+id/textViewDescription"
@@ -88,8 +88,8 @@
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    app:layout_constraintTop_toBottomOf="@id/spinnerLanguage"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/spinnerLanguage" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutDescription"
@@ -100,9 +100,9 @@
                     android:textColorHint="@color/black"
                     app:boxStrokeColor="@color/orange"
                     app:hintTextColor="@color/black"
-                    app:layout_constraintTop_toBottomOf="@id/textViewDescription"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/textViewDescription">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextDescription"
@@ -132,44 +132,43 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:columnCount="4"
                     android:alignmentMode="alignMargins"
-                    android:rowCount="2"
+                    android:columnCount="4"
                     android:columnOrderPreserved="false"
-                    app:layout_constraintTop_toBottomOf="@id/textViewTags"
+                    android:rowCount="2"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                    app:layout_constraintTop_toBottomOf="@id/textViewTags">
 
 
-                <Button
-                    android:id="@+id/buttonTagIA"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ia" />
+                    <Button
+                        android:id="@+id/buttonTagIA"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ia" />
 
-                <Button
-                    android:id="@+id/buttonTagDev"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/dev" />
+                    <Button
+                        android:id="@+id/buttonTagDeV"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dev" />
 
-                <Button
-                    android:id="@+id/buttonTagHistory"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/history" />
+                    <Button
+                        android:id="@+id/buttonTagHistory"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/history" />
 
 
-
-                <Button
-                    android:id="@+id/buttonTagArt"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/art" />
+                    <Button
+                        android:id="@+id/buttonTagArt"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/art" />
 
                     <Button
                         android:id="@+id/buttonTagLanguage"
@@ -178,38 +177,38 @@
                         android:layout_height="wrap_content"
                         android:text="@string/language" />
 
-                <Button
-                    android:id="@+id/buttonTagBiology"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/biology" />
+                    <Button
+                        android:id="@+id/buttonTagBiology"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/biology" />
 
-                <Button
-                    android:id="@+id/buttonTagGeography"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/geography" />
+                    <Button
+                        android:id="@+id/buttonTagGeography"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/geography" />
 
-                <Button
-                    android:id="@+id/buttonTagLiterature"
-                    style="@style/TagButtonOrange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/literature" />
+                    <Button
+                        android:id="@+id/buttonTagLiterature"
+                        style="@style/TagButtonOrange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/literature" />
                 </GridLayout>
 
                 <Button
                     android:id="@+id/buttonNext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Suivant"
                     android:layout_marginTop="24dp"
                     android:backgroundTint="@color/orange"
+                    android:text="Suivant"
                     android:textColor="@color/white"
-                    app:layout_constraintTop_toBottomOf="@id/gridLayoutTags"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/gridLayoutTags" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -220,59 +219,48 @@
 
         <!-- ÉTAPE 2 : Capture d'image en temps réel -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp"
+            android:layout_height="1001dp"
             android:background="@drawable/background_image"
-            >
+            android:padding="16dp">
 
+            <!-- Texte d'instruction -->
             <TextView
                 android:id="@+id/textViewImageCapture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Capture Your Image"
-                android:textSize="24sp"
-                android:textColor="@color/upload_text_color"
-                android:textStyle="bold"
                 android:layout_marginTop="32dp"
-                app:layout_constraintTop_toTopOf="parent"
+                android:text="Capture Your Image"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Zone de prévisualisation caméra -->
             <TextureView
                 android:id="@+id/textureView"
                 android:layout_width="300dp"
                 android:layout_height="400dp"
                 android:layout_marginTop="24dp"
-                app:layout_constraintTop_toBottomOf="@id/textViewImageCapture"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/textViewImageCapture" />
 
+            <!-- Bouton switch caméra -->
             <ImageButton
                 android:id="@+id/switchCameraButton"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_margin="16dp"
-                android:src="@drawable/switch_camera"
-                android:backgroundTint="#80000000"
-                android:background="@android:color/darker_gray"
-                app:layout_constraintTop_toTopOf="@id/textureView"
-                app:layout_constraintEnd_toEndOf="@id/textureView"/>
+                android:background="@drawable/circle_button_background"
+                android:contentDescription="@string/switch_camera"
+                android:src="@drawable/switch_1"
+                app:layout_constraintEnd_toEndOf="@id/textureView"
+                app:layout_constraintTop_toTopOf="@id/textureView" />
 
-
-            <Button
-                android:id="@+id/captureButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Capture"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/textureView"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:backgroundTint="@color/orange"/>
-
+            <!-- Image preview (après capture) -->
             <ImageView
                 android:id="@+id/imagePreview"
                 android:layout_width="300dp"
@@ -280,46 +268,95 @@
                 android:layout_marginTop="24dp"
                 android:scaleType="centerCrop"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/textViewImageCapture"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/textViewImageCapture" />
 
-            <Button
-                android:id="@+id/retakeButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/buttonGroup"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Retake"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textureView">
+
+                <!-- Upload Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/uploadButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/choose_image"
+                    android:textColor="@color/white"
+                    app:strokeColor="@color/white" />
+
+                <!-- Capture Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/captureButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/orange"
+                    android:text="@string/capture"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <!-- Secondary Buttons (after capture) -->
+            <LinearLayout
+                android:id="@+id/secondaryButtonGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="32dp"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/imagePreview"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:backgroundTint="@color/orange"/>
 
-            <Button
+                >
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/retakeButton"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="@string/retake"
+                    android:textColor="@color/white"
+                    app:strokeColor="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/generateButton"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/orange"
+                    android:text="@string/generate_content"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <!-- Bouton Previous -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonPrevious"
-                style="@style/TagButtonBlue"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="32dp"
                 android:text="@string/previous"
-                app:layout_constraintStart_toStartOf="parent"
+                android:textColor="@color/white"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="32dp"
-                android:backgroundTint="@color/orange"/>
-
-            <Button
-                android:id="@+id/generateButton"
-                style="@style/TagButtonBlue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Generate Content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="32dp"
-                android:backgroundTint="@color/orange"
-                android:visibility="gone"/>
+                app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </ViewFlipper>
 </androidx.constraintlayout.widget.ConstraintLayout>
