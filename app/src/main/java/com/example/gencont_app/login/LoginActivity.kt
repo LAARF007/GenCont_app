@@ -2,15 +2,20 @@ package com.example.gencont_app.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.ViewCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.register.RegisterActivity
 import com.example.gencont_app.formulaire.FormulaireActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 
 class LoginActivity : AppCompatActivity() {
 
@@ -20,50 +25,110 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var tvForgotPassword: TextView
     private lateinit var tvRegister: TextView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Initializing views
-        etUsername = findViewById(R.id.etUsername)
-        etPassword = findViewById(R.id.etPassword)
-        btnLogin = findViewById(R.id.btnLogin)
+        etUsername       = findViewById(R.id.etUsername)
+        etPassword       = findViewById(R.id.etPassword)
+        btnLogin         = findViewById(R.id.btnLogin)
         tvForgotPassword = findViewById(R.id.tvForgotPassword)
-        tvRegister = findViewById(R.id.tvRegister)
+        tvRegister       = findViewById(R.id.tvRegister)
 
-
-
-        // Handle login button click
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString()
+            val email    = etUsername.text.toString().trim()
             val password = etPassword.text.toString()
 
-            if (username.isNotEmpty() && password.isNotEmpty()) {
-                // Proceed with login (authentication logic can be added here)
-                loginUser(username, password)
-                val intent = Intent(this, FormulaireActivity::class.java)
-                startActivity(intent)
-            } else {
-                // Show error (for example, using a Toast)
+            if (email.isEmpty() || password.isEmpty()) {
+                showToast("Veuillez remplir tous les champs")
+                return@setOnClickListener
+            }
+
+            loginUser(email, password) { success ->
+                runOnUiThread {
+                    if (success) {
+                        showToast("Connexion réussie")
+                        startActivity(
+                            Intent(this@LoginActivity, FormulaireActivity::class.java)
+                        )
+                        finish()
+                    } else {
+                        showToast("Email ou mot de passe incorrect")
+                    }
+                }
             }
         }
 
-        // Handle forgot password click
         tvForgotPassword.setOnClickListener {
-            // Navigate to ForgotPasswordActivity or show a dialog
+            // TODO: naviguer vers ForgotPasswordActivity ou afficher un dialogue
         }
 
-        // Handle register click
         tvRegister.setOnClickListener {
-            // Navigate to RegisterActivity
+            startActivity(
+                Intent(this@LoginActivity, RegisterActivity::class.java)
+            )
         }
     }
 
-    private fun loginUser(username: String, password: String) {
-        // Placeholder for login logic
-        // Example: call a backend API, or check credentials in a local database
+    /**
+     * Vérifie les identifiants en base et renvoie success=true ou false via onResult
+     */
+    private fun loginUser(
+        email: String,
+        password: String,
+        onResult: (isSuccess: Boolean) -> Unit
+    ) {
+        val db = AppDatabase.getInstance(this)
+
+        lifecycleScope.launch {
+            val utilisateur = withContext(Dispatchers.IO) {
+                db.utilisateurDao().getUtilisateurByEmail(email)
+            }
+
+            if (utilisateur == null) {
+                onResult(false)
+                return@launch
+            }
+
+            val motDePasse = utilisateur.motDePasse
+            if (motDePasse.isNullOrEmpty() || !motDePasse.contains(":")) {
+                onResult(false)
+                return@launch
+            }
+
+            val parts = motDePasse.split(":")
+            if (parts.size != 2) {
+                onResult(false)
+                return@launch
+            }
+
+            val salt       = parts[0]
+            val storedHash = parts[1]
+            val inputHash  = hashPassword(password, salt)
+
+            onResult(storedHash == inputHash)
+        }
     }
 
+    /**
+     * Reproduit le même algorithme PBKDF2 que pour l'enregistrement
+     */
+    private fun hashPassword(password: String, salt: String): String {
+        val saltBytes = android.util.Base64.decode(salt, android.util.Base64.NO_WRAP)
 
+        val spec = PBEKeySpec(
+            password.toCharArray(),
+            saltBytes,
+            120_000,
+            256
+        )
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        val hash    = factory.generateSecret(spec).encoded
+
+        return android.util.Base64.encodeToString(hash, android.util.Base64.NO_WRAP)
+    }
+
+    private fun showToast(message: String) {
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+    }
 }

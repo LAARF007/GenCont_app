@@ -1,48 +1,48 @@
 package com.example.gencont_app.cours
 
+
+import LessonAdapter
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ListView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.configDB.data.Cours
+import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.quiz.QuizActivity
+import kotlinx.coroutines.launch
 
 class CoursActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_cours)
-        // Préparation des données
-        val lessons = listOf(
-            Lesson(
-                "Lesson 1: Introduction to AI",
-                "Discover the basics of Artificial Intelligence..."
-            ),
-            Lesson(
-                "Lesson 2: Machine Learning",
-                "Explore the fundamentals of Machine Learning..."
-            ),
-            Lesson(
-                "Lesson 3: Neural Networks",
-                "Understand the architecture of neural networks..."
-            )
-        )
 
+        val db = AppDatabase.getInstance(applicationContext)
+        val coursDao = db.coursDao()
 
-
-        // Configuration de l'Adapter
         val listView = findViewById<ListView>(R.id.lessonsListView)
-        listView.adapter = LessonAdapter(
-            context = this,
-            lessons = lessons,
-            onStartLessonClick = { position ->
-                // Ouvrir la leçon (ex: navigation vers un écran)
-                Toast.makeText(this, "Lesson ${position + 1} clicked", Toast.LENGTH_SHORT).show()
-            },
-            onQuizClick = { position ->
-                // Ouvrir le quiz
-                Toast.makeText(this, "Quiz ${position + 1} clicked", Toast.LENGTH_SHORT).show()
-            }
-        )
+
+        lifecycleScope.launch {
+            val coursList = coursDao.getAllCours()
+
+            // Conversion de List<Cours> -> List<Lesson>
+            val lessons = coursList
+
+            listView.adapter = LessonAdapter(
+                context = this@CoursActivity,
+                lessons = lessons,
+                onStartLessonClick = { position ->
+                    Toast.makeText(this@CoursActivity, "Lesson ${position + 1} clicked", Toast.LENGTH_SHORT).show()
+                },
+                onQuizClick = { position ->
+
+                    Toast.makeText(this@CoursActivity, "Quiz ${position + 1} clicked", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 }

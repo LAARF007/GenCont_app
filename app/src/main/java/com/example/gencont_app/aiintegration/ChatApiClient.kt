@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 object ChatApiClient {
     private const val TAG = "ChatAPI"
     private const val ENDPOINT = "https://models.inference.ai.azure.com/chat/completions"
-    private const val API_KEY = "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"  // Remplacez par votre clé
+    private const val API_KEY = "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"  // Remplacez par votre clé
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
