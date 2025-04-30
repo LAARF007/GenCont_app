@@ -21,6 +21,7 @@ import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.dao.PromptDao
 import com.example.gencont_app.configDB.data.Prompt
 import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.cours.CoursActivity
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -228,6 +229,9 @@ class FormulaireActivity : AppCompatActivity() {
                                     lifecycleScope.launch(Dispatchers.IO) {
                                         val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
                                         repo.saveCourse(jsonCourse, 2)
+
+                                        val intent = Intent(this@FormulaireActivity, CoursActivity::class.java)
+                                        startActivity(intent)
                                     }
                                 }
 
