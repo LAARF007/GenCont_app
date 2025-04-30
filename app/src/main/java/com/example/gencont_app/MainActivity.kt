@@ -58,17 +58,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
 //            ChatApiClient.sendMessage("Explique-moi comment utiliser TabLayout + ViewPager2 en Kotlin")
 
-            /*ChatApiClient.generateCourseJson(
-                titre       = "traitement d'image",
-                niveau      = "intermidiaire",
-                description = "comment en traite l image ",
-                emotion     = "happy"
-            ) { jsonCourse ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
-                    repo.saveCourse(jsonCourse, 2)
-                }
-            }*/
+//            ChatApiClient.generateCourseJson(
+//                titre       = "traitement d'image",
+//                niveau      = "intermidiaire",
+//                description = "comment en traite l image ",
+//                emotion     = "happy"
+//            ) { jsonCourse ->
+//                lifecycleScope.launch(Dispatchers.IO) {
+//                    val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+//                    repo.saveCourse(jsonCourse, 2)
+//                }
+//            }
 
 
         }

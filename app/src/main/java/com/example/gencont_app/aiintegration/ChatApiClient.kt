@@ -13,6 +13,7 @@ object ChatApiClient {
     private const val TAG = "ChatAPI"
     private const val ENDPOINT = "https://models.inference.ai.azure.com/chat/completions"
     private const val API_KEY = "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"  // Remplacez par votre clé
+//    private const val API_KEY = "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"  // Remplacez par votre clé
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)

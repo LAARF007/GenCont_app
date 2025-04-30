@@ -1,101 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sectionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
     tools:context=".cours.ChapiterActivity">
 
-    <LinearLayout
+    <!-- Titre du cours sélectionné -->
+    <TextView
+        android:id="@+id/tvCourseTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:text="Titre du cours"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp"
+        android:textColor="@android:color/black" />
 
-        <!-- Titre de Chapitre - Style Material Headline -->
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Titre de Chapitre"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-            android:layout_marginBottom="16dp"
-            android:lineSpacingMultiplier="1.2"
-            />
-
-        <!-- Sous-titre - Style Material Title -->
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Introduction to Physics"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_marginBottom="24dp"
-            android:drawablePadding="8dp"/>
-
-        <!-- Contenu avec style Body1 et marge améliorée -->
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time."
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            android:lineSpacingMultiplier="1.25"
-            android:layout_marginBottom="24dp"
-            android:textColorLink="@color/design_default_color_primary"/>
-
-        <!-- Séparateur Material Design -->
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="16dp"
-            app:dividerColor="@color/material_on_surface_emphasis_medium"
-            app:dividerThickness="1dp"/>
-
-        <!-- Section Exemple dans une CardView -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/design_default_color_primary"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Example"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:layout_marginBottom="8dp"/>
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy through space and time.Physics is the fundamental science of understanding how the universe functions. It explores the behavior of matter and energy ."
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                    android:lineSpacingMultiplier="1.2"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Bouton Quiz Material Design -->
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start Quiz"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
-            app:icon="@drawable/ic_quiz_24"
-            app:iconPadding="8dp"
-            app:iconTint="@android:color/white"
-            app:cornerRadius="8dp"
-            app:strokeColor="@color/design_default_color_primary"
-            app:strokeWidth="1dp"
-            app:elevation="4dp"
-            android:layout_marginTop="8dp"
-            />
-
-    </LinearLayout>
-</ScrollView>
+    <!-- Liste des sections -->
+    <ListView
+        android:id="@+id/sectionListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:background="@android:color/white" />
+</LinearLayout>

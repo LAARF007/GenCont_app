@@ -39,6 +39,7 @@ import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.dao.PromptDao
 import com.example.gencont_app.configDB.data.Prompt
 import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.cours.CoursActivity
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -133,10 +134,10 @@ class FormulaireActivity : AppCompatActivity() {
         secondaryButtonGroup = findViewById(R.id.secondaryButtonGroup) // Add this line
 
         // Initial visibility of secondary buttons
-        imagePreview.visibility = View.GONE
-        retakeButton.visibility = View.GONE
-        generateButton.visibility = View.GONE
-        secondaryButtonGroup.visibility = View.GONE // Also initialize its initial visibility
+        imagePreview.visibility = GONE
+        retakeButton.visibility = GONE
+        generateButton.visibility = GONE
+        secondaryButtonGroup.visibility = GONE // Also initialize its initial visibility
     }
 
     // Set up button click listeners
@@ -214,7 +215,7 @@ class FormulaireActivity : AppCompatActivity() {
             return
         }
 
-        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
         try {
             cameraId = cameraId ?: getBackCameraId() ?: manager.cameraIdList[0]
 
@@ -254,7 +255,7 @@ class FormulaireActivity : AppCompatActivity() {
 
     private fun openCamera() {
         try {
-            val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val manager = getSystemService(CAMERA_SERVICE) as CameraManager
             if (manager.cameraIdList.isEmpty()) {
                 Toast.makeText(this, "No cameras available", Toast.LENGTH_SHORT).show()
                 return
@@ -510,12 +511,36 @@ class FormulaireActivity : AppCompatActivity() {
                                     ) { jsonCourse ->
                                         lifecycleScope.launch(Dispatchers.IO) {
                                             val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
-                                            repo.saveCourse(jsonCourse, 2)
+                                            repo.saveCourse(
+                                                jsonCourse, 2, etat_visage, languageSpinner.selectedItem.toString()
+                                            )
                                         }
                                     }
                                 } else {
                                     Toast.makeText(this@FormulaireActivity, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
                                 }
+
+                                etat_visage = topEmotion;
+
+
+                                Log.d("etat_visage", "l etat est : $etat_visage")
+
+                                ChatApiClient.generateCourseJson(
+                                    titre       = courseTitleEditText.text.toString(),
+                                    niveau      = proficiencyLevelSpinner.selectedItem.toString(),
+                                    language    = languageSpinner.selectedItem.toString(),
+                                    description = descriptionEditText.text.toString(),
+                                    emotion     = etat_visage
+                                ) { jsonCourse ->
+                                    lifecycleScope.launch(Dispatchers.IO) {
+                                        val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+                                        repo.saveCourse(jsonCourse, 2, etat_visage, languageSpinner.selectedItem.toString())
+
+                                        val intent = Intent(this@FormulaireActivity, CoursActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                }
+
                             } catch (e: Exception) {
                                 Toast.makeText(this@FormulaireActivity, "Failed to parse response.", Toast.LENGTH_SHORT).show()
                             }
@@ -618,7 +643,7 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     private fun switchCamera() {
-        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
         try {
             if (manager.cameraIdList.size > 1) {
                 closeCamera()
@@ -637,7 +662,7 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     private fun getBackCameraId(): String? {
-        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
         return manager.cameraIdList.firstOrNull { id ->
             manager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING) ==
                     CameraCharacteristics.LENS_FACING_BACK
@@ -645,7 +670,7 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     private fun getFrontCameraId(): String? {
-        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
         return manager.cameraIdList.firstOrNull { id ->
             manager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING) ==
                     CameraCharacteristics.LENS_FACING_FRONT
@@ -655,7 +680,7 @@ class FormulaireActivity : AppCompatActivity() {
     private fun configureTransform(viewWidth: Int, viewHeight: Int) {
         if (textureView.width == 0 || textureView.height == 0 || cameraId == null) return
 
-        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
         try {
             val characteristics = manager.getCameraCharacteristics(cameraId!!)
             val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
@@ -714,7 +739,7 @@ class FormulaireActivity : AppCompatActivity() {
 
     @SuppressLint("ServiceCast")
     private fun getRotationCompensation(): Int {
-        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         val deviceRotation = windowManager.defaultDisplay.rotation
         val sensorOrientation = getSensorOrientation()
         val isFrontFacing = isFrontCamera()
@@ -732,7 +757,7 @@ class FormulaireActivity : AppCompatActivity() {
 
     private fun getSensorOrientation(): Int {
         return try {
-            val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val manager = getSystemService(CAMERA_SERVICE) as CameraManager
             val characteristics = manager.getCameraCharacteristics(cameraId!!)
             characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
         } catch (e: Exception) {
@@ -742,7 +767,7 @@ class FormulaireActivity : AppCompatActivity() {
 
     private fun isFrontCamera(): Boolean {
         return try {
-            val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val manager = getSystemService(CAMERA_SERVICE) as CameraManager
             val characteristics = manager.getCameraCharacteristics(cameraId!!)
             characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
         } catch (e: Exception) {
@@ -762,7 +787,7 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     private fun getOrientation(rotation: Int): Int {
-        val manager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
         val characteristics = manager.getCameraCharacteristics(cameraId!!)
         val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
 
@@ -784,7 +809,7 @@ class FormulaireActivity : AppCompatActivity() {
     // Handle result from image picker
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             if (requestCode == IMAGE_PICK_CODE) {
                 selectedImageUri = data?.data
                 imagePreview.setImageURI(selectedImageUri)

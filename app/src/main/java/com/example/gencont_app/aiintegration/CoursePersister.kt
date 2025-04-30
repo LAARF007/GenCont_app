@@ -1,4 +1,3 @@
-
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.configDB.data.*
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +16,8 @@ class CoursePersister(private val db: AppDatabase) {
     suspend fun saveCourse(
         jsonResponse: String,
         userId: Long,
-        promptStatus: String = "DONE"
+        promptStatus: String,
+        langue : String
     ) = withContext(Dispatchers.IO) {
         // 1) Sanitize : retirer fences Markdown si présentes
         val sanitized = jsonResponse.trim().let { raw ->
@@ -44,7 +44,7 @@ class CoursePersister(private val db: AppDatabase) {
             Tags       = null,
             coursName  = titre,
             niveau     = niveau,
-            langue     = null,
+            langue     = langue,
             description= desc,
             status_user= promptStatus,
             utilisateurId = userId
