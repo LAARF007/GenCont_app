@@ -3,6 +3,7 @@ package com.example.gencont_app.cours
 
 //import LessonAdapter
 import android.content.Intent
+//import LessonAdapter
 import android.os.Bundle
 import android.widget.ListView
 import android.widget.Toast
@@ -11,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.adapter.LessonAdapter
+//import com.example.gencont_app.adapter.LessonAdapter
 import com.example.gencont_app.configDB.data.Cours
 import com.example.gencont_app.configDB.database.AppDatabase
-import com.example.gencont_app.quiz.QuizActivity
 import kotlinx.coroutines.launch
 
 class CoursActivity : AppCompatActivity() {
@@ -40,7 +41,6 @@ class CoursActivity : AppCompatActivity() {
                     Toast.makeText(this@CoursActivity, "Lesson ${position + 1} clicked", Toast.LENGTH_SHORT).show()
                 },
                 onQuizClick = { position ->
-
                     Toast.makeText(this@CoursActivity, "Quiz ${position + 1} clicked", Toast.LENGTH_SHORT).show()
                 }
             )
