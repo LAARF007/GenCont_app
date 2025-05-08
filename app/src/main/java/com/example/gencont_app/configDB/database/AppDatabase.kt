@@ -14,8 +14,6 @@ import com.example.gencont_app.configDB.data.*
         Prompt::class,
         Question::class,
         Quiz::class,
-        QuizQuestion::class,
-        QuizSection::class,
         Reponse::class,
         Section::class,
         Utilisateur::class
@@ -29,14 +27,12 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun promptDao(): PromptDao
     abstract fun questionDao(): QuestionDao
     abstract fun quizDao(): QuizDao
-    abstract fun quizQuestionDao(): QuizQuestionDao
-    abstract fun quizSectionDao(): QuizSectionDao
     abstract fun reponseDao(): ReponseDao
     abstract fun sectionDao(): SectionDao
     abstract fun utilisateurDao(): UtilisateurDao
 
     companion object {
-        private const val DATABASE_NAME = "gencont_db"
+        private const val DATABASE_NAME = "gencont2_db"
 
         // Singleton pattern to ensure only one instance of the database is created
         @Volatile

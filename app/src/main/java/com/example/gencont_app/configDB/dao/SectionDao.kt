@@ -42,4 +42,24 @@ interface SectionDao {
 
     @Query("DELETE FROM sections WHERE cours_id = :coursId")
     suspend fun deleteByCoursId(coursId: Long): Int
+
+
+    // Ajouts
+    @Query("SELECT MAX(numero_order) FROM sections WHERE cours_id = :coursId")
+    suspend fun getMaxOrderNumber(coursId: Long): Int?
+
+    @Query("UPDATE sections SET numero_order = numero_order + 1 WHERE cours_id = :coursId AND numero_order >= :startOrder")
+    suspend fun incrementOrderNumbers(coursId: Long, startOrder: Int)
+
+    @Query("SELECT * FROM sections WHERE cours_id = :coursId AND numero_order = :orderNumber")
+    suspend fun getSectionByOrder(coursId: Long, orderNumber: Int): Section?
+
+    @Query("UPDATE sections SET titre = :newTitle WHERE section_id = :sectionId")
+    suspend fun updateSectionTitle(sectionId: Long, newTitle: String)
+
+    @Query("UPDATE sections SET contenu = :newContent WHERE section_id = :sectionId")
+    suspend fun updateSectionContent(sectionId: Long, newContent: String)
+
+    @Query("DELETE FROM sections")
+    suspend fun deleteAllSections()
 }

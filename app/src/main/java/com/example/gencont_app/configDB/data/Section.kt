@@ -21,8 +21,17 @@ data class Section(
     @ColumnInfo(name = "titre")
     val titre: String,
 
+    @ColumnInfo(name = "urlImage")
+    val urlImage: String,
+
+    @ColumnInfo(name = "urlVideo")
+    val urlVideo: String,
+
     @ColumnInfo(name = "contenu")
     val contenu: String,
+
+    @ColumnInfo(name = "exemple")
+    val exemple: String,
 
     @ColumnInfo(name = "numero_order")
     val numeroOrder: Int,
