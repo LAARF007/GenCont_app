@@ -12,10 +12,13 @@ import java.util.concurrent.TimeUnit
 object ChatApiClient {
     private const val TAG = "ChatAPI"
     private const val ENDPOINT = "https://models.inference.ai.azure.com/chat/completions"
-    private const val API_KEY = "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"  // Remplacez par votre clé
+//    private const val API_KEY = "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"  // Remplacez par votre clé deepseek
 //    private const val API_KEY = "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"  // ezzaim
 //    private const val API_KEY = "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"  // adel
 //private const val API_KEY = "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"  // adel 2
+private const val API_KEY = "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"  // chatgpt adel
+
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
@@ -35,7 +38,7 @@ object ChatApiClient {
         onResult: (jsonCourse: String) -> Unit
     ) {
         val systemPrompt = """
-    Tu es un assistant pédagogique expert dans la génération de cours structurés au format JSON.
+    Tu es un assistant pédagogique expert dans la génération de cours structurés au format JSON. Chaque section doit contenir au moins 150 mots pour assurer une couverture approfondie du sujet.
     Tu reçois en user prompt :
       • un titre de cours
       • un niveau parmi {débutant, intermédiaire, avancé}
@@ -49,19 +52,15 @@ object ChatApiClient {
           • neutral       → clair, factuel, équilibré  
           • sad/anxious   → empathique, rassurant, apaisant  
       – Détermine le **nombre de sections** :
-          • happy/excited → 4–6 sections courtes, rythmées  
-          • neutral       → 3–4 sections de longueur standard  
-          • sad/anxious   → 2–3 sections concises, calmes  
-      – Ajuste le **degré de détail** :
-          • débutant      → explications simples, exemples basiques  
-          • intermédiaire → explications détaillées, exemples concrets  
-          • avancé        → approfondissements, cas d’usage complexes  
+          • happy/excited → 3 sections rythmées (
+          • neutral       → 2 sections de longueur standard 
+          • sad/anxious   → 1 sections concises, calmes 
 
     Chaque section doit contenir :
       1. **titre**  
       2. **contenu** explicatif adapté au niveau et à l’émotion  
       3. **exemple** concret  
-      4. **quiz** de 4 questions, chacune avec 3 réponses (`lib`) dont 1 seule a `"isCorrect": true`.
+      4. **quiz** de 2 questions, chacune avec 3 réponses (`lib`) dont 1 seule a `"isCorrect": true`.
 
    format de ce JSON :
     {
@@ -123,11 +122,13 @@ object ChatApiClient {
             })
         }
         // Construction du JSON complet
+        var chatgpt = "gpt-4.1-nano"
+        var deepseek = "DeepSeek-V3-0324"
         val fullJson = JSONObject().apply {
-            put("model", "DeepSeek-V3-0324")
-            put("temperature", 1.0)
-            put("top_p", 1.0)
-            put("max_tokens", 6000)
+            put("model", chatgpt)
+            put("temperature", 0.8)
+            put("top_p", 0.8)
+            put("max_tokens", 10000)
             put("messages", messagesArray)    // <— utilise maintenant un JSONArray
         }.toString(2)
 
