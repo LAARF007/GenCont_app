@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.register.RegisterActivity
-import com.example.gencont_app.formulaire.FormulaireActivity
+import com.example.gencont_app.home.HomeActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
                     if (success) {
                         showToast("Connexion réussie")
                         startActivity(
-                            Intent(this@LoginActivity, FormulaireActivity::class.java)
+                            Intent(this@LoginActivity, HomeActivity::class.java)
                         )
                         finish()
                     } else {

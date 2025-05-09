@@ -450,7 +450,7 @@ class FormulaireActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateContent() {
+/*    private fun generateContent() {
         if (selectedImageUri == null) {
             Toast.makeText(this, "No image captured or selected.", Toast.LENGTH_SHORT).show()
             return
@@ -554,7 +554,172 @@ class FormulaireActivity : AppCompatActivity() {
                 }
             }
         }
+    } */
+
+    private fun generateContent() {
+        if (selectedImageUri == null) {
+            Toast.makeText(this, "No image captured or selected.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Processing image...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val imageFile = uriToFile(selectedImageUri!!)
+                val base64Image = encodeImageToBase64(imageFile)
+
+                if (base64Image.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        progressDialog.dismiss()
+                        Toast.makeText(this@FormulaireActivity, "Failed to encode image.", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+
+                detectEmotion(base64Image) { result ->
+                    runOnUiThread {
+                        progressDialog.dismiss()
+                        Log.d("FormulaireActivity", "Emotion detection response: $result")
+
+                        if (result == null) {
+                            Toast.makeText(this@FormulaireActivity, "Error detecting emotion.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            try {
+                                // Handle Face++ specific JSON format
+                                var topEmotion = ""
+                                var topScore = 0.0
+
+                                try {
+                                    val jsonObject = JSONObject(result)
+
+                                    // Check if this is a Face++ response with faces array
+                                    if (jsonObject.has("faces") && jsonObject.getJSONArray("faces").length() > 0) {
+                                        val facesArray = jsonObject.getJSONArray("faces")
+                                        val faceObject = facesArray.getJSONObject(0)  // Get first face
+
+                                        // Navigate to the emotion object
+                                        if (faceObject.has("attributes") &&
+                                            faceObject.getJSONObject("attributes").has("emotion")) {
+
+                                            val emotionObject = faceObject.getJSONObject("attributes")
+                                                .getJSONObject("emotion")
+
+                                            // Iterate through emotion values to find the highest
+                                            val emotionKeys = emotionObject.keys()
+                                            while (emotionKeys.hasNext()) {
+                                                val emotion = emotionKeys.next()
+                                                val score = emotionObject.getDouble(emotion)
+
+                                                if (score > topScore) {
+                                                    topScore = score
+                                                    topEmotion = emotion
+                                                }
+                                            }
+
+                                            Log.d("FormulaireActivity", "Found top emotion: $topEmotion with score: $topScore")
+                                        } else {
+                                            Log.e("FormulaireActivity", "No emotion attributes found in face data")
+                                        }
+                                    } else {
+                                        // Fallback to previous parsing logic for other formats
+                                        try {
+                                            // Try to parse as JSONArray
+                                            val jsonArray = JSONArray(result)
+
+                                            for (i in 0 until jsonArray.length()) {
+                                                val item = jsonArray.getJSONObject(i)
+                                                val label = item.getString("label")
+                                                val score = item.getDouble("score")
+
+                                                if (score > topScore) {
+                                                    topScore = score
+                                                    topEmotion = label
+                                                }
+                                            }
+                                        } catch (arrayException: Exception) {
+                                            // If not an array, try parsing as simple JSONObject
+                                            // Check if the object has direct emotion properties
+                                            if (jsonObject.has("label") && jsonObject.has("score")) {
+                                                topEmotion = jsonObject.getString("label")
+                                                topScore = jsonObject.getDouble("score")
+                                            } else {
+                                                // Try to get emotions directly from object
+                                                val keys = jsonObject.keys()
+
+                                                while (keys.hasNext()) {
+                                                    val key = keys.next()
+                                                    if (key != "request_id" && key != "time_used" && key != "image_id" && key != "face_num") {
+                                                        val value = jsonObject.optDouble(key, 0.0)
+
+                                                        if (value > topScore) {
+                                                            topScore = value
+                                                            topEmotion = key
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("FormulaireActivity", "Failed to parse JSON: ${e.message}")
+                                    e.printStackTrace()
+                                    Toast.makeText(this@FormulaireActivity, "Failed to parse JSON response: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    return@runOnUiThread
+                                }
+
+                                if (topEmotion.isNotEmpty()) {
+                                    Toast.makeText(this@FormulaireActivity, "Detected emotion: $topEmotion", Toast.LENGTH_LONG).show()
+                                    etat_visage = topEmotion
+
+                                    Log.d("etat_visage", "l etat est : $etat_visage")
+
+                                    // Make API call only once
+                                    ChatApiClient.generateCourseJson(
+                                        titre = courseTitleEditText.text.toString(),
+                                        niveau = proficiencyLevelSpinner.selectedItem.toString(),
+                                        language = languageSpinner.selectedItem.toString(),
+                                        description = descriptionEditText.text.toString(),
+                                        emotion = etat_visage
+                                    ) { jsonCourse ->
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+
+                                            // Save course with ID 1
+                                            repo.saveCourse(
+                                                jsonCourse, 1, etat_visage, languageSpinner.selectedItem.toString()
+                                            )
+
+                                            // Navigate to CoursActivity
+                                            withContext(Dispatchers.Main) {
+                                                val intent = Intent(this@FormulaireActivity, CoursActivity::class.java)
+                                                startActivity(intent)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(this@FormulaireActivity, "No dominant emotion detected.", Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (e: Exception) {
+                                Log.e("FormulaireActivity", "Error processing emotion: ${e.message}")
+                                Toast.makeText(this@FormulaireActivity, "Failed to parse response: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    Toast.makeText(this@FormulaireActivity, "Error processing image: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
+
+
 
     private fun uriToFile(uri: Uri): File {
         val inputStream = contentResolver.openInputStream(uri) ?: throw IOException("Unable to open input stream")
@@ -579,20 +744,29 @@ class FormulaireActivity : AppCompatActivity() {
     }
 
     private fun detectEmotion(base64Image: String, onResult: (String?) -> Unit) {
+        Log.d("FormulaireActivity", "Starting Face++ emotion detection")
+
+        if (base64Image.isBlank()) {
+            Log.e("FormulaireActivity", "Base64 image is blank or empty")
+            onResult(null)
+            return
+        }
+
         val client = OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
 
-        val jsonPayload = JSONObject()
-        jsonPayload.put("inputs", base64Image)
-
-        val requestBody = jsonPayload.toString().toRequestBody("application/json".toMediaTypeOrNull())
+        val requestBody = FormBody.Builder()
+            .add("api_key", "Ty36Jno7TYDxwJZmUfRhmD-czWAR1Fmi")
+            .add("api_secret", "KRqkGNMuXSRndtBkAL8tc0NWODuHjTCA")
+            .add("image_base64", base64Image)
+            .add("return_attributes", "emotion")
+            .build()
 
         val request = Request.Builder()
-            .url("https://api-inference.huggingface.co/models/motheecreator/vit-Facial-Expression-Recognition")
-            .addHeader("Authorization", "Bearer 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")
+            .url("https://api-us.faceplusplus.com/facepp/v3/detect")
             .post(requestBody)
             .build()
 
@@ -603,17 +777,21 @@ class FormulaireActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (!response.isSuccessful) {
+                val body = response.body?.string()
+                if (!response.isSuccessful || body == null) {
                     Log.e("FormulaireActivity", "API error: ${response.code} - ${response.message}")
                     onResult(null)
-                    return
+                } else {
+                    Log.d("FormulaireActivity", "API response: $body")
+                    onResult(body)
                 }
-                val result = response.body?.string()
-                Log.d("FormulaireActivity", "API response body: $result")
-                onResult(result)
             }
         })
     }
+
+
+
+
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

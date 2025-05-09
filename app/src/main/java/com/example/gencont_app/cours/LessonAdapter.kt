@@ -65,13 +65,7 @@ class LessonAdapter(
             context.startActivity(intent)
         }
 
-        // Bouton "Quiz"
-        view.findViewById<Button>(R.id.btnQuiz).setOnClickListener {
-            onQuizClick(lesson.id.toInt())
-            val intent = Intent(context, QuizActivity::class.java)
-            intent.putExtra("cours_id", lesson.id)
-            context.startActivity(intent)
-        }
+
 
         return view
     }
