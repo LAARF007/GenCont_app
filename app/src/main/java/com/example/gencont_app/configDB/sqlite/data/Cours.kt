@@ -33,3 +33,7 @@ data class Cours(
     @ColumnInfo(name = "promptId") val promptId: Long?,
     @ColumnInfo(name = "utilisateurId") val utilisateurId: Long?
 )
+{
+    // 🔥 Nécessaire pour Firestore
+    constructor() : this(0, null, null, null, null, "", null, null)
+}

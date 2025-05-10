@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun utilisateurDao(): UtilisateurDao
 
     companion object {
-        private const val DATABASE_NAME = "gencont2_db"
+        private const val DATABASE_NAME = "gencont6_db"
 
         // Singleton pattern to ensure only one instance of the database is created
         @Volatile

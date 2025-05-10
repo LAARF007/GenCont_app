@@ -82,7 +82,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-
+        // Synchronisation des données
+        SyncData.syncFromFirebaseToLocal(this)
+        SyncData.syncFromLocalToFirebase(this)
     }
 }

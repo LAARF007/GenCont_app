@@ -1,6 +1,7 @@
 package com.example.gencont_app.configDB.dao
 
 import androidx.room.*
+import com.example.gencont_app.configDB.data.Cours
 import com.example.gencont_app.configDB.data.Section
 
 @Dao
@@ -62,4 +63,8 @@ interface SectionDao {
 
     @Query("DELETE FROM sections")
     suspend fun deleteAllSections()
+
+    @Query("Select * FROM sections")
+    suspend fun getAllSections(): List<Section>
 }
+
