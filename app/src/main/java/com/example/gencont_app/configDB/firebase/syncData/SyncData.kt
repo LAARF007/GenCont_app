@@ -1,8 +1,10 @@
-package com.example.gencont_app.configDB.firebase
+package com.example.gencont_app.configDB.firebase.syncData
 
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.example.gencont_app.configDB.firebase.repository.*
+import com.example.gencont_app.configDB.sqlite.data.Utilisateur
 import com.example.gencont_app.configDB.sqlite.data.*
 import com.example.gencont_app.configDB.sqlite.database.AppDatabase
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-object LoadData {
+object SyncData {
     fun populateDatabase(db: AppDatabase) {
         CoroutineScope(Dispatchers.IO).launch {
             // 1. Créer 10 utilisateurs

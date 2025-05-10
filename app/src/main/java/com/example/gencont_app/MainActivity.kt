@@ -11,9 +11,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.api.ChatApiClient
-import com.example.gencont_app.configDB.data.Utilisateur
-import com.example.gencont_app.configDB.database.AppDatabase
-import com.example.gencont_app.configDB.database.LoadData
+import com.example.gencont_app.configDB.firebase.syncData.SyncData
+import com.example.gencont_app.configDB.sqlite.data.Utilisateur
+import com.example.gencont_app.configDB.sqlite.database.AppDatabase
 import com.example.gencont_app.formulaire.FormulaireActivity
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -73,9 +73,6 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-
-        // load data ezzaim
-        LoadData.populateDatabase(db)
 
         btnRegister.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)

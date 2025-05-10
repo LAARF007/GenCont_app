@@ -1,9 +1,9 @@
-package com.example.gencont_app.configDB.dao
+package com.example.gencont_app.configDB.sqlite.dao
 
 
 import androidx.room.*
-import com.example.gencont_app.configDB.data.Cours
-import com.example.gencont_app.configDB.data.Utilisateur
+import com.example.gencont_app.configDB.sqlite.data.Cours
+import com.example.gencont_app.configDB.sqlite.data.Utilisateur
 
 @Dao
 interface UtilisateurDao {

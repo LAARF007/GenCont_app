@@ -1,8 +1,8 @@
-package com.example.gencont_app.configDB.dao
+package com.example.gencont_app.configDB.sqlite.dao
 
 
 import androidx.room.*
-import com.example.gencont_app.configDB.data.Prompt
+import com.example.gencont_app.configDB.sqlite.data.Prompt
 
 @Dao
 interface PromptDao {

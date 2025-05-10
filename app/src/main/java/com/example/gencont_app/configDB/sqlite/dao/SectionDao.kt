@@ -1,8 +1,8 @@
-package com.example.gencont_app.configDB.dao
+package com.example.gencont_app.configDB.sqlite.dao
 
 import androidx.room.*
-import com.example.gencont_app.configDB.data.Cours
-import com.example.gencont_app.configDB.data.Section
+import com.example.gencont_app.configDB.sqlite.data.Cours
+import com.example.gencont_app.configDB.sqlite.data.Section
 
 @Dao
 interface SectionDao {

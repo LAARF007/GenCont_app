@@ -1,4 +1,4 @@
-package com.example.gencont_app.configDB.database
+package com.example.gencont_app.configDB.sqlite.database
 
 import android.content.Context
 import androidx.room.Database
@@ -7,6 +7,21 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.gencont_app.configDB.dao.*
 import com.example.gencont_app.configDB.data.*
+import com.example.gencont_app.configDB.sqlite.dao.CoursDao
+import com.example.gencont_app.configDB.sqlite.dao.PromptDao
+import com.example.gencont_app.configDB.sqlite.dao.QuestionDao
+import com.example.gencont_app.configDB.sqlite.dao.QuizDao
+import com.example.gencont_app.configDB.sqlite.dao.ReponseDao
+import com.example.gencont_app.configDB.sqlite.dao.SectionDao
+import com.example.gencont_app.configDB.sqlite.dao.UtilisateurDao
+import com.example.gencont_app.configDB.sqlite.data.Converters
+import com.example.gencont_app.configDB.sqlite.data.Cours
+import com.example.gencont_app.configDB.sqlite.data.Prompt
+import com.example.gencont_app.configDB.sqlite.data.Question
+import com.example.gencont_app.configDB.sqlite.data.Quiz
+import com.example.gencont_app.configDB.sqlite.data.Reponse
+import com.example.gencont_app.configDB.sqlite.data.Section
+import com.example.gencont_app.configDB.sqlite.data.Utilisateur
 
 @Database(
     entities = [

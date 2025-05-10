@@ -1,4 +1,4 @@
-package com.example.gencont_app.configDB.data
+package com.example.gencont_app.configDB.sqlite.data
 
 import androidx.room.TypeConverter
 
