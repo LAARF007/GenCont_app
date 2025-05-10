@@ -1,13 +1,10 @@
 package com.example.gencont_app.configDB.dao
 
-
 import androidx.room.*
-import androidx.room.Query
 import com.example.gencont_app.configDB.data.Question
 
 @Dao
 interface QuestionDao {
-    // Méthodes de base
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(question: Question): Long
 
@@ -20,7 +17,6 @@ interface QuestionDao {
     @Delete
     suspend fun delete(question: Question)
 
-    // Méthodes supplémentaires
     @Query("SELECT * FROM Question")
     suspend fun getAllQuestions(): List<Question>
 
