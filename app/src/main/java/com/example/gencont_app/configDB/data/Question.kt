@@ -1,7 +1,6 @@
 package com.example.gencont_app.configDB.data
 
 import androidx.room.*
-import androidx.room.Entity
 
 @Entity(
     tableName = "Question",

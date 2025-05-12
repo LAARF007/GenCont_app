@@ -29,10 +29,18 @@ class ChapiterAdapter(
         val section = sections[position]
 
         val tvTitle = view.findViewById<TextView>(R.id.tvSectionTitle)
-
+        val tvDescription = view.findViewById<TextView>(R.id.tvSectionOrder)
 
         tvTitle.text = "${section.numeroOrder}. ${section.titre}"
+        val descText = section.contenu
 
+        tvDescription.text = if (descText.length > 55)
+            descText.take(55) + "..."
+        else
+            descText
+
+
+//        tvDescription.text = section.contenu
 
         val btnVoirContenu = view.findViewById<Button>(R.id.btnVoirContenu)
         btnVoirContenu.setOnClickListener {

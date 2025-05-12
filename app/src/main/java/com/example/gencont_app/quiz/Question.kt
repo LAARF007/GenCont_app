@@ -1,6 +1,9 @@
 package com.example.gencont_app.quiz
 
 data class Question(
-    val questionText: String,
-    val options: List<String>
+    val id: Long,
+    val ref: String?,
+    val libelle: String?,
+    val status_question: String?,
+    val quizId: Long
 )

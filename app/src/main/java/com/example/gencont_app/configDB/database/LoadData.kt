@@ -11,7 +11,7 @@ object LoadData {
         CoroutineScope(Dispatchers.IO).launch {
             // 1. Créer 10 utilisateurs
             val userIds = mutableListOf<Long>()
-            for (i in 1..10) {
+           /* for (i in 1..10) {
                 val user = Utilisateur(
                     nom = "User$i",
                     prénom = "Name$i",
@@ -19,11 +19,11 @@ object LoadData {
                     motDePasse = "password$i"
                 )
                 userIds.add(db.utilisateurDao().insert(user))
-            }
+            }*/
 
             // 2. Créer 10 prompts
             val promptIds = mutableListOf<Long>()
-            for (i in 1..10) {
+           /* for (i in 1..10) {
                 val prompt = Prompt(
                     Tags = listOf("tag${i}", "tag${i+1}"),
                     coursName = "Cours $i",
@@ -38,11 +38,11 @@ object LoadData {
                     utilisateurId = userIds[i-1]
                 )
                 promptIds.add(db.promptDao().insert(prompt))
-            }
+            }*/
 
             // 3. Créer 10 cours
             val coursIds = mutableListOf<Long>()
-            for (i in 1..10) {
+          /*  for (i in 1..10) {
                 val cours = Cours(
                     titre = "Cours $i",
                     description = "Description du cours $i",
@@ -57,11 +57,11 @@ object LoadData {
                     utilisateurId = userIds[i-1]
                 )
                 coursIds.add(db.coursDao().insert(cours))
-            }
+            }*/
 
             // 4. Créer 10 sections par cours (3 sections par cours)
             val sectionIds = mutableListOf<Long>()
-            for (coursId in coursIds) {
+           /* for (coursId in coursIds) {
                 for (j in 1..3) {
                     val section = Section(
                         titre = "Section $j",
@@ -74,11 +74,11 @@ object LoadData {
                     )
                     sectionIds.add(db.sectionDao().insert(section))
                 }
-            }
+            }*/
 
             // 5. Créer 10 quiz (1 par section)
             val quizIds = mutableListOf<Long>()
-            for ((index, sectionId) in sectionIds.withIndex()) {
+           /* for ((index, sectionId) in sectionIds.withIndex()) {
                 val quiz = Quiz(
                     ref = UUID.randomUUID().toString(),
                     lib = "Quiz pour section $sectionId",
@@ -87,11 +87,11 @@ object LoadData {
                     sectionId = sectionId
                 )
                 quizIds.add(db.quizDao().insert(quiz))
-            }
+            }*/
 
             // 6. Créer 10 questions par quiz (3 questions par quiz)
             val questionIds = mutableListOf<Long>()
-            for ((quizIndex, quizId) in quizIds.withIndex()) {
+           /* for ((quizIndex, quizId) in quizIds.withIndex()) {
                 for (j in 1..3) {
                     val question = Question(
                         ref = UUID.randomUUID().toString(),
@@ -101,10 +101,10 @@ object LoadData {
                     )
                     questionIds.add(db.questionDao().insert(question))
                 }
-            }
+            }*/
 
             // 7. Créer 10 réponses par question (4 réponses par question)
-            for ((questionIndex, questionId) in questionIds.withIndex()) {
+            /*for ((questionIndex, questionId) in questionIds.withIndex()) {
                 for (k in 1..4) {
                     val reponse = Reponse(
                         ref = UUID.randomUUID().toString(),
@@ -114,7 +114,7 @@ object LoadData {
                     )
                     db.reponseDao().insert(reponse)
                 }
-            }
+            }*/
         }
     }
 
