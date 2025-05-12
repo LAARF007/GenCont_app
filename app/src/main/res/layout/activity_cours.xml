@@ -5,11 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="0dp"
-    android:background="#F5F5F5"
+    android:background="#FFFFFF"
     tools:context=".cours.CoursActivity">
 
-    <!-- En-tête avec barre d'outils améliorée -->
+    <!-- Toolbar with orange background -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -30,8 +29,7 @@
                 android:text="SmartLearn"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:fontFamily="sans-serif-medium" />
+                android:textColor="@android:color/white" />
 
             <TextView
                 android:id="@+id/tvCourseCounter"
@@ -41,12 +39,11 @@
                 android:textSize="14sp"
                 android:textColor="@android:color/white"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="sans-serif"
                 tools:text="12 leçons" />
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- Section de recherche -->
+    <!-- Search section with orange accents -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,7 +85,7 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Filtres et tris -->
+    <!-- Filter chips - horizontal scrolling -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -140,14 +137,13 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <!-- Liste des leçons avec cadre -->
+    <!-- List view container with improved styling -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingHorizontal="16dp">
 
-        <!-- Message vide -->
         <ListView
             android:id="@+id/lessonsListView"
             android:layout_width="match_parent"
@@ -172,12 +168,14 @@
             tools:visibility="gone" />
     </FrameLayout>
 
-    <!-- Footer avec navigation -->
+    <!-- Improved bottom navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="28dp"
+        android:layout_height="56dp"
         android:background="@android:color/white"
+        app:itemIconTint="#FF6D00"
+        app:itemTextColor="#FF6D00"
         android:elevation="8dp" />
 
 </LinearLayout>
