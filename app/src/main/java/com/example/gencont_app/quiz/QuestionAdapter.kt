@@ -1,3 +1,4 @@
+
 package com.example.gencont_app.quiz
 
 import android.content.Context
@@ -19,8 +20,8 @@ class QuestionAdapter(
 ) : BaseAdapter() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
-    private val selectedAnswers = mutableMapOf<Int, Int>()
-    private val questionResponses = mutableMapOf<Int, List<Reponse>>()
+    private val selectedAnswers = mutableMapOf<Int, Int>() // Position -> Index sélectionné
+    private val questionResponses = mutableMapOf<Int, List<Reponse>>() // Position -> Liste de réponses
 
     override fun getCount(): Int = questions.size
 
@@ -73,6 +74,32 @@ class QuestionAdapter(
         notifyDataSetChanged()
     }
 
+    // Nouvelle méthode pour récupérer les IDs des questions
+    fun getQuestionIds(): LongArray {
+        return questions.map { it.id }.toLongArray()
+    }
+
+    // Nouvelle méthode pour récupérer les IDs des réponses sélectionnées
+    fun getSelectedAnswerIds(): LongArray {
+        val answerIds = mutableListOf<Long>()
+
+        for (position in 0 until questions.size) {
+            val selectedIndex = selectedAnswers[position] ?: -1
+            if (selectedIndex >= 0) {
+                val responses = questionResponses[position]
+                if (responses != null && selectedIndex < responses.size) {
+                    answerIds.add(responses[selectedIndex].id)
+                } else {
+                    answerIds.add(-1L)
+                }
+            } else {
+                answerIds.add(-1L)
+            }
+        }
+
+        return answerIds.toLongArray()
+    }
+
     fun calculateScore(): Int {
         var score = 0
         selectedAnswers.forEach { (position, selectedIndex) ->
@@ -89,6 +116,7 @@ class QuestionAdapter(
     }
 
     fun getTotalQuestions(): Int = questions.size
+
     fun calculateDetailedResult(): QuizResult {
         var correct = 0
         selectedAnswers.forEach { (position, selectedIndex) ->
@@ -107,6 +135,3 @@ class QuestionAdapter(
         )
     }
 }
-
-
-
