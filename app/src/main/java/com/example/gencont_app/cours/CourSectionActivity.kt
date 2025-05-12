@@ -33,7 +33,7 @@ class CourSectionActivity : AppCompatActivity() {
         descTextView = findViewById(R.id.tvChapitreContent)
         tvChapitreContent = findViewById(R.id.tvChapitreContent)
         example = findViewById(R.id.example)
-        btnQuiz = findViewById(R.id.btnQuiz)
+        btnQuiz = findViewById(R.id.btnStartQuiz)
 
         val sectionId = intent.getLongExtra("section_id", -1L)
 

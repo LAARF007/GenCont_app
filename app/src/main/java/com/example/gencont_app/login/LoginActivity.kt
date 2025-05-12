@@ -44,7 +44,10 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            loginUser(email, password) { success ->
+            startActivity(
+                Intent(this@LoginActivity, HomeActivity::class.java)
+            )
+            /*loginUser(email, password) { success ->
                 runOnUiThread {
                     if (success) {
                         showToast("Connexion réussie")
@@ -56,7 +59,7 @@ class LoginActivity : AppCompatActivity() {
                         showToast("Email ou mot de passe incorrect")
                     }
                 }
-            }
+            }*/
         }
 
         tvForgotPassword.setOnClickListener {
