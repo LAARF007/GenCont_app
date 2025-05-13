@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.sqlite.database.*
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.CoroutineScope

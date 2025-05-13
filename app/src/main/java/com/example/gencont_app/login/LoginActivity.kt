@@ -8,7 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.firebase.syncData.SyncData
+import com.example.gencont_app.configDB.sqlite.database.*
 import com.example.gencont_app.register.RegisterActivity
 import com.example.gencont_app.home.HomeActivity
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +45,17 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // start  service firebase
+            // Synchronisation des données
+            SyncData.syncFromFirebaseToLocal(this)
+
+            // si le cas que firebase supprimer ou localmenet en les donner
+            // SyncData.syncFromLocalToFirebase(this)
+
+            // end  service firebase
+
             startActivity(
+
                 Intent(this@LoginActivity, HomeActivity::class.java)
             )
             /*loginUser(email, password) { success ->

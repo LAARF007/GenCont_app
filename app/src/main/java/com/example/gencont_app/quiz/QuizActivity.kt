@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.sqlite.database.AppDatabase
 import com.example.gencont_app.score.ScoreActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +33,8 @@ class QuizActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.Main).launch {
                 val quiz = db.quizDao().getQuizBySection(sectionId)
                 quiz?.let {
-                    val questions = db.questionDao().getQuestionsWithReponses(it.id)
+                    val questionsEntity = db.questionDao().getQuestionsWithReponses(it.id)
+                    val questions = questionsEntity.map { it.toQuizQuestion() } // Conversion ici
                     val adapter = QuestionAdapter(this@QuizActivity, questions)
                     listViewQuestions.adapter = adapter
                 }

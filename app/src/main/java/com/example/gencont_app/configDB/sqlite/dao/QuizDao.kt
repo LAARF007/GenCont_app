@@ -1,8 +1,9 @@
-package com.example.gencont_app.configDB.dao
+package com.example.gencont_app.configDB.sqlite.dao
 
 
 import androidx.room.*
-import com.example.gencont_app.configDB.data.Quiz
+import com.example.gencont_app.configDB.sqlite.data.Cours
+import com.example.gencont_app.configDB.sqlite.data.Quiz
 
 @Dao
 interface QuizDao {
@@ -40,4 +41,8 @@ interface QuizDao {
 
     @Query("DELETE FROM Quiz")
     suspend fun deleteAllQuizzes()
+
+    @Query("SELECT * FROM Quiz")
+    suspend fun getAllQuizzes(): List<Quiz>
+
 }

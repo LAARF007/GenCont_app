@@ -1,12 +1,12 @@
-package com.example.gencont_app.configDB.database
+package com.example.gencont_app.configDB.sqlite.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.gencont_app.configDB.dao.*
-import com.example.gencont_app.configDB.data.*
+import com.example.gencont_app.configDB.sqlite.dao.*
+import com.example.gencont_app.configDB.sqlite.data.*
 
 @Database(
     entities = [
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun utilisateurDao(): UtilisateurDao
 
     companion object {
-        private const val DATABASE_NAME = "gencont2_db"
+        private const val DATABASE_NAME = "gencont_db"
 
         // Singleton pattern to ensure only one instance of the database is created
         @Volatile

@@ -11,17 +11,21 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.api.ChatApiClient
-import com.example.gencont_app.configDB.data.Utilisateur
-import com.example.gencont_app.configDB.database.AppDatabase
-import com.example.gencont_app.configDB.database.LoadData
+import com.example.gencont_app.configDB.firebase.repository.UtilisateurFirebaseRepository
+import com.example.gencont_app.configDB.firebase.syncData.SyncData
+import com.example.gencont_app.configDB.sqlite.data.Utilisateur
+import com.example.gencont_app.configDB.sqlite.database.AppDatabase
 import com.example.gencont_app.formulaire.FormulaireActivity
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import com.example.gencont_app.login.LoginActivity
 import com.example.gencont_app.register.RegisterActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var utilisateurFirebaseRepository: UtilisateurFirebaseRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main) // ensure the filename is activity_main.xml
@@ -39,8 +43,8 @@ class MainActivity : AppCompatActivity() {
                     email = "john.doe@example.com",
                     motDePasse = "password123"
                 )
-                val utilisateurId = utilisateurDao.insert(newUtilisateur)
-                Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
+//                val utilisateurId = utilisateurDao.insert(newUtilisateur)
+//                Log.d("DB_INIT", "Utilisateur inserted with ID: $utilisateurId")
             }
         }
 
@@ -74,15 +78,37 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        // load data ezzaim
-        LoadData.populateDatabase(db)
-
         btnRegister.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
 
+        // how to add user local and firebase
+//        val firestore = FirebaseFirestore.getInstance()
+//
+//        utilisateurFirebaseRepository = UtilisateurFirebaseRepository(utilisateurDao, firestore)
+//
+//        // Insert a Utilisateur
+//        val nouvelUtilisateur = Utilisateur(
+//            nom = "Mohammed",
+//            prénom = "Ezzaim",
+//            email = "m@gmail.com",
+//            motDePasse = "password123"
+//        )
+//
+//        runBlocking {
+//            launch {
+//
+//
+//                lifecycleScope.launch {
+//                    val id = utilisateurFirebaseRepository.insert(nouvelUtilisateur)
+//                    Log.d("InsertUtilisateur", "Utilisateur inséré avec l'ID : $id")
+//                }
+//            }
+//        }
 
-
+        // Synchronisation des données
+//        SyncData.syncFromFirebaseToLocal(this)
+//        SyncData.syncFromLocalToFirebase(this)
     }
 }

@@ -1,4 +1,4 @@
-package com.example.gencont_app.configDB.data
+package com.example.gencont_app.configDB.sqlite.data
 
 import androidx.room.*
 
@@ -16,7 +16,7 @@ import androidx.room.*
 data class Section(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "section_id")
-    val id: Long = 0,
+    var id: Long = 0,
 
     @ColumnInfo(name = "titre")
     val titre: String,
@@ -42,7 +42,23 @@ data class Section(
     @ColumnInfo(name = "date_creation", defaultValue = "CURRENT_TIMESTAMP")
     val dateCreation: String? = null
 ) {
+    // Constructeur par défaut
+    constructor() : this(0, "", "", "", "", "", 0, 0, null)
+
     companion object {
         const val TABLE_NAME = "sections"
     }
+
+    fun equalsIgnoreFields(other: Section): Boolean {
+        return  this.id == other.id &&
+                this.titre == other.titre &&
+                this.urlImage == other.urlImage &&
+                this.urlVideo == other.urlVideo &&
+                this.contenu == other.contenu &&
+                this.exemple == other.exemple &&
+                this.numeroOrder == other.numeroOrder &&
+                this.coursId == other.coursId &&
+                this.dateCreation == other.dateCreation
+    }
+
 }

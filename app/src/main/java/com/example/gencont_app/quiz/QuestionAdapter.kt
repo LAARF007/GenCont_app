@@ -6,9 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.data.Question
-import com.example.gencont_app.configDB.data.Reponse
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.sqlite.data.*
+import com.example.gencont_app.configDB.sqlite.database.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

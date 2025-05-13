@@ -1,7 +1,9 @@
-package com.example.gencont_app.configDB.dao
+package com.example.gencont_app.configDB.sqlite.dao
 
 import androidx.room.*
-import com.example.gencont_app.configDB.data.Question
+
+import com.example.gencont_app.configDB.sqlite.data.Question
+import androidx.room.Query
 
 @Dao
 interface QuestionDao {

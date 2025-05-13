@@ -1,4 +1,4 @@
-package com.example.gencont_app.configDB.data
+package com.example.gencont_app.configDB.sqlite.data
 
 import androidx.room.*
 
@@ -24,7 +24,7 @@ import androidx.room.*
     ]
 )
 data class Cours(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0,
     val titre: String?,
     val description: String?,
     val nombreSection: Int?,
@@ -33,3 +33,19 @@ data class Cours(
     @ColumnInfo(name = "promptId") val promptId: Long?,
     @ColumnInfo(name = "utilisateurId") val utilisateurId: Long?
 )
+{
+    // Nécessaire pour Firestore
+    constructor() : this(0, null, null, null, null, "", null, null)
+
+    // Méthode pour comparer les champs
+    fun equalsIgnoreFields(other: Cours): Boolean {
+        return this.id == other.id &&
+                this.titre == other.titre &&
+                this.description == other.description &&
+                this.nombreSection == other.nombreSection &&
+                this.statusCours == other.statusCours &&
+                this.urlImage == other.urlImage &&
+                this.promptId == other.promptId &&
+                this.utilisateurId == other.utilisateurId
+    }
+}

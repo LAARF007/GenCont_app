@@ -1,6 +1,5 @@
 package com.example.gencont_app.cours
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -10,7 +9,7 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.TextView
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.data.Section
+import com.example.gencont_app.configDB.sqlite.data.*
 
 class ChapiterAdapter(
     private val context: Context,

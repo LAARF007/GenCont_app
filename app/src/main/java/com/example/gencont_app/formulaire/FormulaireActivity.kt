@@ -36,9 +36,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.api.ChatApiClient
-import com.example.gencont_app.configDB.dao.PromptDao
-import com.example.gencont_app.configDB.data.Prompt
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.sqlite.data.*
+import com.example.gencont_app.configDB.sqlite.database.*
 import com.example.gencont_app.cours.CoursActivity
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
