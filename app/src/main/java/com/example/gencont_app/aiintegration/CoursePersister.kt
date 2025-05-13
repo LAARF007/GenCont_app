@@ -1,11 +1,16 @@
+
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.configDB.data.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.*
+import android.util.Log
 
 class CoursePersister(private val db: AppDatabase) {
+
+    private val mermaidTransformer = MermaidTransformer()
+    private val TAG = "CoursePersister"
 
     suspend fun saveCourse(
         jsonResponse: String,
@@ -61,17 +66,27 @@ class CoursePersister(private val db: AppDatabase) {
         val sections = root.getJSONArray("sections")
         for (i in 0 until sections.length()) {
             val secJson = sections.getJSONObject(i)
+            val sectionTitle = secJson.getString("titre")
+            val sectionContent = secJson.getString("contenu")
 
             val section = Section(
-                titre = secJson.getString("titre"),
+                titre = sectionTitle,
                 urlImage = secJson.optString("urlImage", ""),
                 urlVideo = secJson.optString("urlVideo", ""),
-                contenu = secJson.getString("contenu"),
+                contenu = sectionContent,
                 exemple = secJson.optString("exemple", ""),
                 numeroOrder = i + 1,
                 coursId = coursId
             )
             val sectionId = db.sectionDao().insert(section)
+
+            // NOUVELLE FONCTIONNALITÉ: Transformer le contenu en Mermaid
+            try {
+                val mermaidCode = mermaidTransformer.transformToMermaid(sectionContent, sectionTitle)
+                Log.d(TAG, "MERMAID DIAGRAM FOR SECTION '${sectionTitle}':\n$mermaidCode")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to generate Mermaid diagram for section '${sectionTitle}'", e)
+            }
 
             // 4) Création du Quiz lié à cette section (relation directe maintenant)
             val quiz = Quiz(

@@ -12,12 +12,8 @@ import java.util.concurrent.TimeUnit
 object ChatApiClient {
     private const val TAG = "ChatAPI"
     private const val ENDPOINT = "https://models.inference.ai.azure.com/chat/completions"
-//    private const val API_KEY = "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"  // Remplacez par votre clé deepseek
-//    private const val API_KEY = "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"  // ezzaim
-//    private const val API_KEY = "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"  // adel
-//private const val API_KEY = "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"  // adel 2
-private const val API_KEY = "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"  // ismail 2
-//private const val API_KEY = "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"  // chatgpt adel
+
+private const val API_KEY = "key"  // ismail 2
 
 
     private val client = OkHttpClient.Builder()
