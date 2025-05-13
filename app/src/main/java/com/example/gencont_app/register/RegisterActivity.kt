@@ -10,10 +10,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
+import com.example.gencont_app.configDB.firebase.repository.QuestionFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.UtilisateurFirebaseRepository
 import com.example.gencont_app.configDB.sqlite.data.Utilisateur
 import com.example.gencont_app.configDB.sqlite.database.AppDatabase
 
 import com.example.gencont_app.login.LoginActivity
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,6 +38,9 @@ class RegisterActivity : AppCompatActivity() {
         private const val PBKDF2_ITERATIONS = 120000
         private const val KEY_LENGTH = 256
     }
+
+    val firestore = FirebaseFirestore.getInstance()
+    private lateinit var utilisateurFirebaseRepository: UtilisateurFirebaseRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,7 +102,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 // Sauvegarde de l'utilisateur dans la base de données
                 withContext(Dispatchers.IO) {
-                    db.utilisateurDao().insert(utilisateur)
+                    UtilisateurFirebaseRepository(db.utilisateurDao(),firestore).insert(utilisateur)
                 }
 
                 // Notifier l'utilisateur et terminer l'activité

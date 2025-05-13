@@ -84,28 +84,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         // how to add user local and firebase
-//        val firestore = FirebaseFirestore.getInstance()
-//
-//        utilisateurFirebaseRepository = UtilisateurFirebaseRepository(utilisateurDao, firestore)
-//
-//        // Insert a Utilisateur
-//        val nouvelUtilisateur = Utilisateur(
-//            nom = "Mohammed",
-//            prénom = "Ezzaim",
-//            email = "m@gmail.com",
-//            motDePasse = "password123"
-//        )
-//
-//        runBlocking {
-//            launch {
-//
-//
-//                lifecycleScope.launch {
-//                    val id = utilisateurFirebaseRepository.insert(nouvelUtilisateur)
-//                    Log.d("InsertUtilisateur", "Utilisateur inséré avec l'ID : $id")
-//                }
-//            }
-//        }
+        val firestore = FirebaseFirestore.getInstance()
+
+        utilisateurFirebaseRepository = UtilisateurFirebaseRepository(utilisateurDao, firestore)
+
+        // Insert a Utilisateur
+        val nouvelUtilisateur = Utilisateur(
+            nom = "Mohammed",
+            prénom = "Ezzaim",
+            email = "m@gmail.com",
+            motDePasse = "password123"
+        )
+
+        runBlocking {
+            launch {
+
+
+                lifecycleScope.launch {
+                    val id = utilisateurFirebaseRepository.insert(nouvelUtilisateur)
+                    Log.d("InsertUtilisateur", "Utilisateur inséré avec l'ID : $id")
+                }
+            }
+        }
 
         // Synchronisation des données
 //        SyncData.syncFromFirebaseToLocal(this)
