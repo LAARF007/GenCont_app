@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.data.Cours
+import com.example.gencont_app.configDB.sqlite.data.*
 import com.example.gencont_app.cours.ChapiterActivity
 import com.example.gencont_app.quiz.QuizActivity
 

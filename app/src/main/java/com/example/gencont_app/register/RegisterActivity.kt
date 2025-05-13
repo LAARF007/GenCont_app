@@ -10,8 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
-import com.example.gencont_app.configDB.data.Utilisateur
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.sqlite.data.Utilisateur
+import com.example.gencont_app.configDB.sqlite.database.AppDatabase
+
 import com.example.gencont_app.login.LoginActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

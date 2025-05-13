@@ -13,8 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.gencont_app.R
 import com.example.gencont_app.adapter.LessonAdapter
 //import com.example.gencont_app.adapter.LessonAdapter
-import com.example.gencont_app.configDB.data.Cours
-import com.example.gencont_app.configDB.database.AppDatabase
+import com.example.gencont_app.configDB.sqlite.database.*
 import kotlinx.coroutines.launch
 
 class CoursActivity : AppCompatActivity() {

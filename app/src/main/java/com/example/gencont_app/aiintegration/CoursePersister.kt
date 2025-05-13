@@ -1,13 +1,27 @@
-
 import com.example.gencont_app.configDB.database.AppDatabase
 import com.example.gencont_app.configDB.data.*
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Response
 import org.json.JSONObject
 import java.util.*
 import android.util.Log
 
+
+import com.example.gencont_app.configDB.firebase.repository.CoursFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.PromptFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.QuestionFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.QuizFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.ReponseFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.SectionFirebaseRepository
+import com.example.gencont_app.configDB.firebase.repository.UtilisateurFirebaseRepository
+import com.example.gencont_app.configDB.sqlite.data.*
+import com.example.gencont_app.configDB.sqlite.database.*
+import com.google.firebase.firestore.FirebaseFirestore
+
 class CoursePersister(private val db: AppDatabase) {
+    val firestore = FirebaseFirestore.getInstance()
 
     private val mermaidTransformer = MermaidTransformer()
     private val TAG = "CoursePersister"
@@ -48,7 +62,11 @@ class CoursePersister(private val db: AppDatabase) {
             status_user = promptStatus,
             utilisateurId = userId
         )
-        val promptId = db.promptDao().insert(prompt)
+        // val promptId = db.promptDao().insert(prompt)
+        val promptFirebaseRepository = PromptFirebaseRepository(db.promptDao(), firestore)
+        val promptId = promptFirebaseRepository.insert(prompt)
+
+
 
         // 2) Sauvegarde du Cours
         val cours = Cours(
@@ -60,7 +78,9 @@ class CoursePersister(private val db: AppDatabase) {
             promptId = promptId,
             utilisateurId = userId
         )
-        val coursId = db.coursDao().insert(cours)
+        // val coursId = db.coursDao().insert(cours)
+        val coursFirebaseRepository = CoursFirebaseRepository(db.coursDao(), firestore)
+        val coursId = coursFirebaseRepository.insert(cours)
 
         // 3) Parcours des sections
         val sections = root.getJSONArray("sections")
@@ -78,7 +98,9 @@ class CoursePersister(private val db: AppDatabase) {
                 numeroOrder = i + 1,
                 coursId = coursId
             )
-            val sectionId = db.sectionDao().insert(section)
+            // val sectionId = db.sectionDao().insert(section)
+            val sectionFirebaseRepository = SectionFirebaseRepository(db.sectionDao(), firestore)
+            val sectionId = sectionFirebaseRepository.insert(section)
 
             // NOUVELLE FONCTIONNALITÉ: Transformer le contenu en Mermaid
             try {
@@ -96,7 +118,10 @@ class CoursePersister(private val db: AppDatabase) {
                 score = 0.0,
                 sectionId = sectionId // Lien direct via sectionId
             )
-            val quizId = db.quizDao().insert(quiz)
+            // val quizId = db.quizDao().insert(quiz)
+            val quizFirebaseRepository = QuizFirebaseRepository(db.quizDao(),firestore)
+            val quizId = quizFirebaseRepository.insert(quiz)
+
 
             // 5) Parcours des questions (si elles existent dans le JSON)
             if (secJson.has("quiz")) {
@@ -111,7 +136,9 @@ class CoursePersister(private val db: AppDatabase) {
                         status_question = "NEW",
                         quizId = quizId
                     )
-                    val questionId = db.questionDao().insert(question)
+                    // val questionId = db.questionDao().insert(question)
+                    val questionFirebaseRepository = QuestionFirebaseRepository(db.questionDao(),firestore)
+                    val questionId = questionFirebaseRepository.insert(question)
 
                     // Parcours des réponses
                     if (qJson.has("reponses")) {
@@ -124,7 +151,9 @@ class CoursePersister(private val db: AppDatabase) {
                                 status = if (rJson.getBoolean("isCorrect")) "correct" else "incorrect",
                                 questionId = questionId
                             )
-                            db.reponseDao().insert(rep)
+//                            db.reponseDao().insert(rep)
+                            val reponseFirebaseRepository = ReponseFirebaseRepository(db.reponseDao(),firestore)
+                            val reponseId = reponseFirebaseRepository.insert(rep)
                         }
                     }
                 }
