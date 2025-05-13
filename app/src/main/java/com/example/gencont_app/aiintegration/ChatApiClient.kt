@@ -13,7 +13,7 @@ object ChatApiClient {
     private const val TAG = "ChatAPI"
     private const val ENDPOINT = "https://models.inference.ai.azure.com/chat/completions"
 
-private const val API_KEY = "key"  // ismail 2
+private const val API_KEY = "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"  // ismail 2
 
 
     private val client = OkHttpClient.Builder()

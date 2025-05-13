@@ -1,24 +1,17 @@
-import com.example.gencont_app.configDB.database.AppDatabase
-import com.example.gencont_app.configDB.data.*
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.Response
 import org.json.JSONObject
 import java.util.*
 import android.util.Log
-
-
 import com.example.gencont_app.configDB.firebase.repository.CoursFirebaseRepository
 import com.example.gencont_app.configDB.firebase.repository.PromptFirebaseRepository
 import com.example.gencont_app.configDB.firebase.repository.QuestionFirebaseRepository
 import com.example.gencont_app.configDB.firebase.repository.QuizFirebaseRepository
 import com.example.gencont_app.configDB.firebase.repository.ReponseFirebaseRepository
 import com.example.gencont_app.configDB.firebase.repository.SectionFirebaseRepository
-import com.example.gencont_app.configDB.firebase.repository.UtilisateurFirebaseRepository
 import com.example.gencont_app.configDB.sqlite.data.*
 import com.example.gencont_app.configDB.sqlite.database.*
-import com.google.firebase.firestore.FirebaseFirestore
 
 class CoursePersister(private val db: AppDatabase) {
     val firestore = FirebaseFirestore.getInstance()
