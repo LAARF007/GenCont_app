@@ -14,6 +14,7 @@ import com.example.gencont_app.R
 import com.example.gencont_app.adapter.LessonAdapter
 //import com.example.gencont_app.adapter.LessonAdapter
 import com.example.gencont_app.configDB.sqlite.database.*
+import com.example.gencont_app.login.UserSessionManager
 import kotlinx.coroutines.launch
 
 class CoursActivity : AppCompatActivity() {
@@ -28,21 +29,32 @@ class CoursActivity : AppCompatActivity() {
         val listView = findViewById<ListView>(R.id.lessonsListView)
 
         lifecycleScope.launch {
-            val coursList = coursDao.getAllCours()
+            val userId = UserSessionManager.getUserId(this@CoursActivity)
+            if (userId != -1L) {
+                val coursList = coursDao.getCoursByUtilisateur(userId)
 
-            // Conversion de List<Cours> -> List<Lesson>
-            val lessons = coursList
+                // Conversion de List<Cours> -> List<Lesson>
+                val lessons = coursList
 
-            listView.adapter = LessonAdapter(
-                context = this@CoursActivity,
-                lessons = lessons,
-                onStartLessonClick = { position ->
-                    Toast.makeText(this@CoursActivity, "Lesson ${position + 1} clicked", Toast.LENGTH_SHORT).show()
-                },
-                onQuizClick = { position ->
-                    Toast.makeText(this@CoursActivity, "Quiz ${position + 1} clicked", Toast.LENGTH_SHORT).show()
-                }
-            )
+                listView.adapter = LessonAdapter(
+                    context = this@CoursActivity,
+                    lessons = lessons,
+                    onStartLessonClick = { position ->
+                        Toast.makeText(
+                            this@CoursActivity,
+                            "Lesson ${position + 1} clicked",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onQuizClick = { position ->
+                        Toast.makeText(
+                            this@CoursActivity,
+                            "Quiz ${position + 1} clicked",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                )
+            }
         }
     }
 }

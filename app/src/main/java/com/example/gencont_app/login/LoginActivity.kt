@@ -54,11 +54,11 @@ class LoginActivity : AppCompatActivity() {
 
             // end  service firebase
 
-            startActivity(
-
-                Intent(this@LoginActivity, HomeActivity::class.java)
-            )
-            /*loginUser(email, password) { success ->
+//            startActivity(
+//
+//                Intent(this@LoginActivity, HomeActivity::class.java)
+//            )
+            loginUser(email, password) { success ->
                 runOnUiThread {
                     if (success) {
                         showToast("Connexion réussie")
@@ -70,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
                         showToast("Email ou mot de passe incorrect")
                     }
                 }
-            }*/
+            }
         }
 
         tvForgotPassword.setOnClickListener {
@@ -94,6 +94,35 @@ class LoginActivity : AppCompatActivity() {
     ) {
         val db = AppDatabase.getInstance(this)
 
+//        lifecycleScope.launch {
+//            val utilisateur = withContext(Dispatchers.IO) {
+//                db.utilisateurDao().getUtilisateurByEmail(email)
+//            }
+//
+//            if (utilisateur == null) {
+//                onResult(false)
+//                return@launch
+//            }
+//
+//            val motDePasse = utilisateur.motDePasse
+//            if (motDePasse.isNullOrEmpty() || !motDePasse.contains(":")) {
+//                onResult(false)
+//                return@launch
+//            }
+//
+//            val parts = motDePasse.split(":")
+//            if (parts.size != 2) {
+//                onResult(false)
+//                return@launch
+//            }
+//
+//            val salt       = parts[0]
+//            val storedHash = parts[1]
+//            val inputHash  = hashPassword(password, salt)
+//
+//            onResult(storedHash == inputHash)
+//        }
+
         lifecycleScope.launch {
             val utilisateur = withContext(Dispatchers.IO) {
                 db.utilisateurDao().getUtilisateurByEmail(email)
@@ -116,12 +145,20 @@ class LoginActivity : AppCompatActivity() {
                 return@launch
             }
 
-            val salt       = parts[0]
+            val salt = parts[0]
             val storedHash = parts[1]
-            val inputHash  = hashPassword(password, salt)
+            val inputHash = hashPassword(password, salt)
 
-            onResult(storedHash == inputHash)
+            if (storedHash == inputHash) {
+                // Sauvegarde de l'ID utilisateur
+                UserSessionManager.saveUserId(this@LoginActivity, utilisateur.id)
+                onResult(true)
+            } else {
+                onResult(false)
+            }
         }
+
+
     }
 
     /**

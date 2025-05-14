@@ -39,6 +39,7 @@ import com.example.gencont_app.api.ChatApiClient
 import com.example.gencont_app.configDB.sqlite.data.*
 import com.example.gencont_app.configDB.sqlite.database.*
 import com.example.gencont_app.cours.CoursActivity
+import com.example.gencont_app.login.UserSessionManager
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -687,10 +688,13 @@ class FormulaireActivity : AppCompatActivity() {
                                         lifecycleScope.launch(Dispatchers.IO) {
                                             val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
 
-                                            // Save course with ID 1
+                                            // Save course
+                                            val userId = UserSessionManager.getUserId(this@FormulaireActivity)
+                                            if (userId != -1L) {
                                             repo.saveCourse(
-                                                jsonCourse, 1, etat_visage, languageSpinner.selectedItem.toString()
+                                                jsonCourse, userId, etat_visage, languageSpinner.selectedItem.toString()
                                             )
+                                            }
 
                                             // Navigate to CoursActivity
                                             withContext(Dispatchers.Main) {
