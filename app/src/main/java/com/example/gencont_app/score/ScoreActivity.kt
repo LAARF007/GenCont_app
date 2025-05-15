@@ -4,8 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import com.google.android.material.button.MaterialButton
+import java.io.File
+import java.io.FileOutputStream
+import androidx.activity.enableEdgeToEdge
 import com.example.gencont_app.R
 import com.example.gencont_app.quiz.QuizActivity
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -67,6 +73,101 @@ class ScoreActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             finish() // Fermer l'activité actuelle
+        }
+
+        setupShareButton()
+    }
+
+    private fun setupShareButton() {
+        val shareButton = findViewById<MaterialButton>(R.id.shareButton)
+
+        shareButton.setOnClickListener {
+            shareResult()
+        }
+    }
+
+    private fun shareResult() {
+        // Get your content to share
+        val contentToShare = "Check out my amazing result from AppName!"
+
+        // You can also include a URL or additional text
+        val url = "https://your-app-link.com"
+        val shareText = "$contentToShare $url"
+
+        // Take screenshot and share it along with the text
+        val screenshotUri = takeScreenshot()
+
+        // Create the share intent with both text and image
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+
+            // Add the screenshot if available
+            if (screenshotUri != null) {
+                putExtra(Intent.EXTRA_STREAM, screenshotUri)
+                type = "image/*"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            } else {
+                type = "text/plain"
+            }
+        }
+
+        // Show the share sheet
+        try {
+            startActivity(Intent.createChooser(shareIntent, "Share via"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Unable to share content", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Takes a screenshot of the current activity and returns the URI of the saved image
+     * @return Uri? The content URI of the saved screenshot, or null if failed
+     */
+    private fun takeScreenshot(): android.net.Uri? {
+        try {
+            // Get root view of the activity
+            val rootView = window.decorView.rootView
+
+            // Make it drawable
+            rootView.isDrawingCacheEnabled = true
+            val bitmap = Bitmap.createBitmap(rootView.drawingCache)
+            rootView.isDrawingCacheEnabled = false
+
+            return saveScreenshotToCache(bitmap)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to capture screenshot", Toast.LENGTH_SHORT).show()
+            return null
+        }
+    }
+
+    /**
+     * Saves the bitmap to the app's cache directory and returns its content URI
+     */
+    private fun saveScreenshotToCache(bitmap: Bitmap): android.net.Uri? {
+        return try {
+            // Create file in cache directory
+            val fileName = "screenshot_${System.currentTimeMillis()}.jpg"
+            val cachePath = File(cacheDir, "screenshots")
+            cachePath.mkdirs()
+
+            val stream = FileOutputStream("$cachePath/$fileName")
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.close()
+
+            // Get the file
+            val newFile = File(cachePath, fileName)
+
+            // Create content URI using FileProvider
+            FileProvider.getUriForFile(
+                this,
+                "${applicationContext.packageName}.fileprovider",
+                newFile
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }
