@@ -4,6 +4,7 @@ import CoursePersister
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
@@ -24,6 +25,7 @@ import android.util.Base64
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
+import android.view.LayoutInflater
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -172,9 +174,15 @@ class FormulaireActivity : AppCompatActivity() {
 
         generateButton.setOnClickListener {
             if (selectedImageUri != null) {
+                showLoadingDialog()
+                generateButton.isEnabled = false
+
+                // Animation de fondu pour le bouton
+                generateButton.animate().alpha(0.5f).duration = 200
+
                 generateContent()
             } else {
-                Toast.makeText(this, "Please capture or select an image first.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Veuillez capturer ou sélectionner une image", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -562,10 +570,10 @@ class FormulaireActivity : AppCompatActivity() {
             return
         }
 
-        val progressDialog = ProgressDialog(this)
-        progressDialog.setMessage("Processing image...")
-        progressDialog.setCancelable(false)
-        progressDialog.show()
+//        val progressDialog = ProgressDialog(this)
+//        progressDialog.setMessage("Processing image...")
+//        progressDialog.setCancelable(false)
+//        progressDialog.show()
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -574,7 +582,7 @@ class FormulaireActivity : AppCompatActivity() {
 
                 if (base64Image.isEmpty()) {
                     withContext(Dispatchers.Main) {
-                        progressDialog.dismiss()
+//                        progressDialog.dismiss()
                         Toast.makeText(this@FormulaireActivity, "Failed to encode image.", Toast.LENGTH_SHORT).show()
                     }
                     return@launch
@@ -582,7 +590,8 @@ class FormulaireActivity : AppCompatActivity() {
 
                 detectEmotion(base64Image) { result ->
                     runOnUiThread {
-                        progressDialog.dismiss()
+                        updateLoadingMessage("Création de votre cours personnalisé...")
+//                        progressDialog.dismiss()
                         Log.d("FormulaireActivity", "Emotion detection response: $result")
 
                         if (result == null) {
@@ -698,8 +707,14 @@ class FormulaireActivity : AppCompatActivity() {
 
                                             // Navigate to CoursActivity
                                             withContext(Dispatchers.Main) {
+                                                dismissLoadingDialog()
+                                                generateButton.isEnabled = true
+                                                generateButton.animate().alpha(1f).duration = 200
+
+                                                // Animation de transition
                                                 val intent = Intent(this@FormulaireActivity, CoursActivity::class.java)
                                                 startActivity(intent)
+                                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                                             }
                                         }
                                     }
@@ -715,7 +730,7 @@ class FormulaireActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    progressDialog.dismiss()
+//                    progressDialog.dismiss()
                     Toast.makeText(this@FormulaireActivity, "Error processing image: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -1007,6 +1022,38 @@ class FormulaireActivity : AppCompatActivity() {
             }
         }
     }
+
+
+
+    private var loadingDialog: AlertDialog? = null
+
+    private fun showLoadingDialog() {
+        val inflater = LayoutInflater.from(this)
+        val dialogView = inflater.inflate(R.layout.custom_loading_dialog, null)
+
+        val messageTextView = dialogView.findViewById<TextView>(R.id.loading_message)
+        messageTextView.text = "Analyse de votre photo..."
+
+        loadingDialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        loadingDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        loadingDialog?.show()
+    }
+
+    private fun updateLoadingMessage(message: String) {
+        loadingDialog?.findViewById<TextView>(R.id.loading_message)?.text = message
+    }
+
+    private fun dismissLoadingDialog() {
+        loadingDialog?.dismiss()
+        loadingDialog = null
+    }
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
