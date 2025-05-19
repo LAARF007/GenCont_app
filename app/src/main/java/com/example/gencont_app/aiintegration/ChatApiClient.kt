@@ -127,9 +127,9 @@ private const val API_KEY = "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"  // ismai
         var deepseek = "DeepSeek-V3-0324"
         val fullJson = JSONObject().apply {
             put("model", chatgpt)
-            put("temperature", 0.8)
-            put("top_p", 0.8)
-            put("max_tokens", 10000)
+            put("temperature", 0.6)
+            put("top_p", 0.7)
+            put("max_tokens", 11000)
             put("messages", messagesArray)    // <— utilise maintenant un JSONArray
         }.toString(2)
 
