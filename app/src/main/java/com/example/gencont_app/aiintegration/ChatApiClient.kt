@@ -61,7 +61,7 @@ private const val API_KEY = "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"  // ismai
       1. **titre**  
       2. **contenu** explicatif adapté au niveau et à l’émotion  
       3. **exemple** concret  
-      4. **quiz** de 2 questions, chacune avec 3 réponses (`lib`) dont 1 seule a `"isCorrect": true`.
+      4. **quiz** de 4 questions, chacune avec 3 réponses (`lib`) dont 1 seule a `"isCorrect": true`.
 
    format de ce JSON :
     {
