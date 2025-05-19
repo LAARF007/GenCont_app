@@ -2,6 +2,7 @@ package com.example.gencont_app.cours
 
 import android.os.Bundle
 import android.widget.ListView
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,7 @@ class ChapiterActivity : AppCompatActivity() {
 //    private lateinit var descTextView: MaterialTextView
 //    private lateinit var tvChapitreContent: MaterialTextView
 //    private lateinit var example: MaterialTextView
+    private lateinit var tvCourseTitle: TextView
     private lateinit var listView: ListView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +24,7 @@ class ChapiterActivity : AppCompatActivity() {
 
 
 
-//        titleTextView = findViewById(R.id.tvChapitreTitle) // À créer dans ton XML
+        tvCourseTitle = findViewById(R.id.tvCourseTitle) // À créer dans ton XML
 //        descTextView = findViewById(R.id.tvChapitreContent) // À créer dans ton XML
 //        tvChapitreContent = findViewById(R.id.tvChapitreContent) // À créer dans ton XML
 //        example = findViewById(R.id.example) // À créer dans ton XML
@@ -35,6 +37,7 @@ class ChapiterActivity : AppCompatActivity() {
 
 
         val coursId = intent.getLongExtra("cours_id", -1)
+        val coursTitre = intent.getStringExtra("cours_titre") ?: "-1"
 
         if (coursId != -1L) {
             val db = AppDatabase.getInstance(applicationContext)
@@ -43,6 +46,8 @@ class ChapiterActivity : AppCompatActivity() {
             listView = findViewById(R.id.sectionListView)
 
             lifecycleScope.launch {
+
+                tvCourseTitle.text = coursTitre
                 val sections = sectionDao.getSectionsForCours(coursId)
                 listView.adapter = ChapiterAdapter(this@ChapiterActivity, sections)
             }
