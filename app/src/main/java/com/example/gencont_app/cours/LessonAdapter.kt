@@ -61,9 +61,15 @@ class LessonAdapter(
         view.findViewById<Button>(R.id.btnStartLesson).setOnClickListener {
             onStartLessonClick(lesson.id.toInt())
             val intent = Intent(context, ChapiterActivity::class.java)
-            intent.putExtra("cours_id", lesson.id ?: -1)
+
+            // Ajouter les extras dans l'Intent
+            intent.putExtra("cours_id", lesson.id)
+            intent.putExtra("cours_titre", lesson.titre ?: "TItre de Cour")  // Utiliser une valeur par défaut pour titre si null
+
+            // Lancer l'activité
             context.startActivity(intent)
         }
+
 
 
 

@@ -80,7 +80,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <!-- Chapter content with improved readability -->
-            <com.google.android.material.textview.MaterialTextView
+            git <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/tvChapitreContent"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -141,7 +141,7 @@
                     <com.google.android.material.textview.MaterialTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Example content with improved readability and modern design."
+                        android:text=""
                         android:textSize="15sp"
                         android:textColor="#424242"
                         android:lineSpacingMultiplier="1.3" />
