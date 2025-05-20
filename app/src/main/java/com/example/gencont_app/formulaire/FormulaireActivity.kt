@@ -685,7 +685,7 @@ class FormulaireActivity : AppCompatActivity() {
                                         emotion = etat_visage
                                     ) { jsonCourse ->
                                         lifecycleScope.launch(Dispatchers.IO) {
-                                            val repo = CoursePersister(AppDatabase.getInstance(applicationContext))
+                                            val repo = CoursePersister(AppDatabase.getInstance(applicationContext),applicationContext)
 
                                             // Save course with ID 1
                                             repo.saveCourse(

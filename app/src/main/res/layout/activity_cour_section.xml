@@ -14,7 +14,6 @@
         android:background="#FFFFFF"
         app:elevation="0dp">
 
-        <!-- Video container at the top -->
         <FrameLayout
             android:id="@+id/videoContainer"
             android:layout_width="match_parent"
@@ -22,25 +21,22 @@
             android:background="#FFF3E0"
             app:layout_scrollFlags="scroll">
 
-            <!-- Placeholder for video player -->
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Video Content"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp" />
+            <WebView
+                android:id="@+id/youtubeWebView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-            <!-- Play button overlay -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fabPlayVideo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:contentDescription="TODO"
                 app:fabSize="normal"
                 app:backgroundTint="#FFFFFF"
                 app:tint="#FF7D00" />
         </FrameLayout>
+
 
     </com.google.android.material.appbar.AppBarLayout>
 
