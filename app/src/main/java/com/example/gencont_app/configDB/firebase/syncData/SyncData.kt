@@ -177,6 +177,7 @@ object SyncData {
                         "Erreur d'importation Firebase → Locale : ${e.message}",
                         Toast.LENGTH_LONG
                     ).show()
+
                 }
             }
         }
